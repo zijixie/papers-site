@@ -1,0 +1,683 @@
+
+
+=== PAGE 1 ===
+
+Frontiers in Public Health
+01
+frontiersin.org
+Leveraging systems science and 
+design thinking to advance 
+implementation science: moving 
+toward a solution-oriented 
+paradigm
+Terry T.-K. Huang 1*, Emily A. Callahan 2, Emily R. Haines 3, 
+Cole Hooley 4, Dina M. Sorensen 5, David W. Lounsbury 6, 
+Nasim S. Sabounchi 7 and Peter S. Hovmand 8
+1 Center for Systems and Community Design and NYU-CUNY Prevention Research Center, Graduate 
+School of Public Health & Health Policy, City University of New York, New York, NY, United States, 
+2 EAC Health and Nutrition, LLC, Leesburg, VA, United States, 3 School of Medicine, Wake Forest 
+University, Winston-Salem, NC, United States, 4 School of Social Work, Brigham Young University, 
+Provo, UT, United States, 5 d.studio, Charlotte, NC, United States, 6 Department of Epidemiology & 
+Population Health, Albert Einstein College of Medicine, Bronx, NY, United States, 7 Center for Systems 
+and Community Design, Graduate School of Public Health & Health Policy, City University of 
+New York, New York, NY, United States, 8 Center for Community Health Integration, School of 
+Medicine, Case Western Reserve University, Cleveland, OH, United States
+Many public health challenges are characterized by complexity that reflects 
+the dynamic systems in which they occur. Such systems involve multiple 
+interdependent factors, actors, and sectors that influence health, and are a 
+primary driver of challenges of insufficient implementation, sustainment, and 
+scale of evidence-based public health interventions. Implementation science 
+frameworks have been developed to help embed evidence-based interventions 
+in diverse settings and identify key factors that facilitate or hinder implementation. 
+These frameworks are largely static in that they do not explain the nature and 
+dynamics of interrelationships among the identified determinants, nor how 
+those determinants might change over time. Furthermore, most implementation 
+science frameworks are top-down, deterministic, and linear, leaving critical 
+gaps in understanding of both how to intervene on determinants of successful 
+implementation and how to scale evidence-based solutions. Design thinking 
+and systems science offer methods for transforming this problem-oriented 
+paradigm into one that is solution-oriented. This article describes these two 
+approaches and how they can be  integrated into implementation science 
+strategies to promote implementation, sustainment, and scaling of public health 
+innovation, ultimately resulting in transformative systems changes that improve 
+population health.
+KEYWORDS
+systems science, design thinking, implementation science, human-centered design, 
+complex systems, prevention, intervention sustainability, intervention scale
+OPEN ACCESS
+EDITED BY
+Christopher Tompkins, 
+Brandeis University, United States
+REVIEWED BY
+Elizabeth Chen, 
+University of North Carolina at Chapel Hill, 
+United States
+*CORRESPONDENCE
+Terry T.-K. Huang 
+ Terry.Huang@sph.cuny.edu
+RECEIVED 07 March 2024
+ACCEPTED 23 April 2024
+PUBLISHED 15 May 2024
+CITATION
+Huang TT-K, Callahan EA, Haines ER, 
+Hooley C, Sorensen DM, Lounsbury DW, 
+Sabounchi NS and Hovmand PS (2024) 
+Leveraging systems science and design 
+thinking to advance implementation science: 
+moving toward a solution-oriented paradigm.
+Front. Public Health 12:1368050.
+doi: 10.3389/fpubh.2024.1368050
+COPYRIGHT
+© 2024 Huang, Callahan, Haines, Hooley, 
+Sorensen, Lounsbury, Sabounchi and 
+Hovmand. This is an open-access article 
+distributed under the terms of the Creative 
+Commons Attribution License (CC BY). The 
+use, distribution or reproduction in other 
+forums is permitted, provided the original 
+author(s) and the copyright owner(s) are 
+credited and that the original publication in 
+this journal is cited, in accordance with 
+accepted academic practice. No use, 
+distribution or reproduction is permitted 
+which does not comply with these terms.
+TYPE  Perspective
+PUBLISHED  15 May 2024
+DOI  10.3389/fpubh.2024.1368050
+
+
+=== PAGE 2 ===
+
+Huang et al.
+10.3389/fpubh.2024.1368050
+Frontiers in Public Health
+02
+frontiersin.org
+1 Introduction
+Many persistent public health challenges are marked by dynamic 
+complexity that makes them particularly difficult for practitioners and 
+policymakers to address (1). A key characteristic of such problems—for 
+example, rising prevalence of obesity (2) and widespread opioid 
+addiction and dependence (3)—is involvement of multiple heterogenous 
+factors, actors, and sectors that affect relevant behaviors and health 
+outcomes. Additional key characteristics include interconnectivity and 
+interdependencies with other problems; persistence over time and 
+adaptation to changing circumstances; high economic and/or political 
+stakes; and lack of agreement or clarity regarding solutions (4).
+This inherent complexity is a primary driver of the present 
+challenges of insufficient implementation, sustainment, and scale of 
+evidence-based public health interventions. It has been estimated that 
+about half of available public health innovations are used in practice, (5) 
+and that it takes 17 years for just 14% of evidence-based research 
+outcomes to be implemented in real-world settings (6, 7). Moreover, 
+many evidence-based public health interventions are seldom sustained, 
+with limited funding and resources identified as a primary barrier (8).
+A goal of implementation science for public health is to identify the 
+factors, processes, and methods that can successfully embed evidence-
+based interventions in policy and practice, hastening the translation 
+from discovery to application and population health benefits (9). 
+Multiple implementation science frameworks have been developed to 
+offer strategies to generalize findings across diverse settings, identify 
+implementation determinants (e.g., contextual barriers and facilitators), 
+inform data collection, enhance conceptual clarity, and guide 
+implementation planning (10). Identifying key factors that facilitate or 
+hinder implementation is beneficial, but many of the frameworks are 
+static in that they do not explain the nature and dynamics of 
+interrelationships among the identified determinants nor how those 
+determinants might change over time. Many implementation science 
+frameworks are top-down and deterministic (11), although some recent 
+advances have been made to address community engagement in 
+intervention implementation (12) and to guide adaptations during 
+program implementation (13). Most implementation science 
+frameworks, however, do not necessarily pinpoint the most promising 
+focus areas or determinants, let alone how to intervene on them (i.e., 
+how to select, design, tailor, and deliver implementation strategies) (14).
+Design thinking and systems science offer methods for 
+transforming a traditionally problem-oriented paradigm into one that 
+is solution-oriented. We propose that integrating these two approaches 
+into implementation science strategies can promote implementation, 
+sustainment, and scaling of public health innovation, ultimately 
+resulting in transformative systems changes that improve population 
+health. Herein we describe how design thinking and systems science can 
+be leveraged to advance implementation science, first by describing each 
+approach and its benefits and then discussing how the two can 
+be integrated in implementation science approaches to fill gaps.
+2 Innovating through design thinking
+Design thinking is a human-centered approach to innovation that 
+includes methods from the designer’s toolkit to solve problems 
+through creativity. A design thinking approach embraces complexity 
+and provides a methodologically deliberate, non-linear way of 
+developing an understanding of and structural empathy (15) with the 
+populations affected by an issue. It reframes an issue to generate new 
+ideas or surprising solutions by rapidly prototyping and testing the 
+ideas and learning from them in an iterative manner (16). Key stages 
+in the design thinking process have been summarized as moving from 
+problem identification to design challenge opportunity by 
+empathizing, defining, ideating, prototyping, and testing new 
+solutions for refinement. The process is ultimately action-oriented and 
+focused on solving implementation challenges identified by current 
+implementation science frameworks. Figure 1 highlights stages in the 
+design thinking process and lists exercises used or questions asked in 
+each stage.
+These dynamic stages can be performed multiple times as the 
+design challenge solution is iterated through experimentation, testing, 
+and refining of ideas toward a feasible solution. Because the process 
+emphasizes rapid and iterative ideation, prototyping, and testing of 
+solution ideas in an environment where it is safe—and even 
+encouraged—to repeatedly fail, lessons learned about what leads to 
+failure can be rapidly parlayed into new and improved solutions ideas 
+(14). For example, a Danish project that investigated how health 
+professionals practice shared decision-making with cancer patients 
+was successful in using design thinking methods to better understand 
+patients’ needs before, during, and after treatment and in prototyping 
+novel potential solutions for supporting and empowering patients 
+during their treatment (17). In another case, a human-centered design 
+approach was used to improve feasibility and acceptability of an HIV 
+response intervention that promoted patient-centered care practices 
+among health care workers in Zambia (18).
+The design thinking process can also generate insights about 
+usability and fit of evidence-based community health strategies based 
+on user needs and contexts, as well as other implementation factors 
+such as feasibility and complexity (19). For example, Haines et al. used 
+a design thinking approach to promote implementation and 
+effectiveness of a care coordination intervention for young adults with 
+cancer, concluding that the approach helped harmonize evidence-
+based practices, contexts, and implementation strategies so that the 
+intervention and its delivery were best designed to fit the 
+implementation context (20).
+Whereas design thinking concepts have been applied in business, 
+engineering, social services, and health care (21), training in and use 
+of this approach is relatively new in public health. Evidence is 
+accumulating, however, to suggest design thinking’s utility for 
+strategizing the application of evidence-based public health 
+interventions. For example, design thinking has been used to develop 
+mobile health interventions, (22) to promote healthy eating and 
+physical activity in schools, (23, 24) and has been integrated with 
+community engagement to address violence-related health disparities 
+among Latino youth (25) and to ideate potential solutions to increase 
+neighborhood park use (26). The combination of design thinking and 
+implementation science approaches has been promoted for its 
+potential to improve translation of evidence-based interventions into 
+real-world settings (27). It has been suggested that design thinking 
+methods can be used to address difficulties encountered during such 
+translation (28), and to consistently operationalize implementation 
+strategies (29).
+As a human-centered approach, design thinking provides public 
+health researchers and practitioners a systematic way to engage 
+communities 
+in 
+co-producing 
+solutions 
+that 
+align 
+with 
+
+
+=== PAGE 3 ===
+
+Huang et al.
+10.3389/fpubh.2024.1368050
+Frontiers in Public Health
+03
+frontiersin.org
+community-identified needs, values, preferences, and assets. In other 
+words, design thinking is set up to develop a contextually specific 
+solution that solves the user’s “pain point” (30). For example, design 
+charettes (i.e., collaborative workshops) are commonly used to engage 
+participants to empathetically explore end-user experiences in order 
+to tailor implementation strategies to the specific context of each 
+community. The empathic, solution-oriented process of design 
+thinking can also be effective in fostering social relationships within 
+community groups, which contributes to the effectiveness of such 
+groups in activating and sustaining social infrastructure (31).
+Though more research is needed, the growing body of literature 
+suggests that design thinking allows for more innovative, strategic, 
+and contextually tailored intervention designs, which may increase 
+participant adoption and maintenance of health behaviors. 
+Furthermore, iterative problem solving associated with design 
+thinking could support ongoing adaptation of evidence-based 
+interventions 
+to 
+promote 
+intervention 
+sustainability 
+in 
+dynamic contexts.
+3 Addressing complexity with systems 
+science
+Systems science is a broad term referring to the scientific 
+understanding of complex adaptive systems, (32) as well as a set of 
+tools to study the behavior of complex systems with applications 
+ranging from developing theory to forecasting outcomes of 
+interventions and informing policy. Systems science techniques are 
+well-suited to examine dynamic, multi-level, and non-linear 
+relationships and feedback loops that exist within evidence-based 
+interventions and implementation contexts and strategies, making 
+systems science a promising support for implementation sustainment 
+and scale-up (33, 34).
+The focus of implementation science during the past decade has 
+shifted toward studying how to accelerate translation of evidence-
+based interventions into policy and practice, considering the complex, 
+adaptive systems in which such interventions are implemented (9). 
+The introduction of systems thinking as an effort to bring insights 
+from systems science to implementation science challenges the 
+thinking that implementation is a simple linear process, or that 
+participatory research in itself will improve the use of evidence-based 
+interventions in practice and policy settings (35). The use and 
+sustainability of an evidence-based intervention is dependent on 
+multiple, multi-level, dynamic processes (35, 36). The implication of 
+this transition to systems thinking is that scientists must consider how 
+to move their methods of investigation beyond a reductionist, isolated 
+focus on a single part of a system toward a more holistic view (9).
+Systems science includes informal causal mapping, mapping of 
+social networks, and plotting of spatial relationships, as well as more 
+formal mathematical modeling and computer simulation. Causal 
+mapping and formal modeling with computer simulation are used to 
+study system components and their dynamic interactions at multiple 
+levels to better understand the behavior of complex systems (37). 
+System science also includes methods for engaging actors directly in 
+conceptualizing problems and participating in the development, 
+interpretation, and transfer of ownership of results (e.g., soft systems 
+methodology, participatory systems modeling, group model building, 
+and community-based system dynamics) (38, 39).
+The goals of participatory systems science approaches are to build a 
+common vocabulary and agenda to describe a complex problem and its 
+FIGURE 1
+A process model of design thinking. Source: adapted from Altman et al. (16), https://www.cdc.gov/pcd/issues/2018/18_0128a.htm#1.
+
+
+=== PAGE 4 ===
+
+Huang et al.
+10.3389/fpubh.2024.1368050
+Frontiers in Public Health
+04
+frontiersin.org
+drivers, design potential solutions, and garner buy-in to implement the 
+solutions that rise to the top after a range of options have been assessed 
+with quantitative modeling approaches (40). For example, participatory 
+systems science approaches have been applied to help community 
+stakeholders in the HEALing Communities Study-New York State 
+(HCS-NY) develop a shared understanding of the opioid crisis in order 
+to inform local strategies for prevention and treatment (41). Community 
+stakeholders who participated in the New York effort reported that the 
+causal mapping approach helped them see the interconnectivity of 
+complex factors, actors, and sectors and appreciate the need for multiple, 
+mutually reinforcing strategies to avert opioid overdose and fatality.
+Formal modeling with simulation methods have been used in 
+public health research to increase the rigor of understanding 
+complexity underlying public health challenges and to uncover novel 
+ways to intervene in the system to solve real-world problems (4). 
+Computer simulation modeling approaches are also used to test the 
+potential impact of policies or interventions through simulations in 
+which researchers create a virtual representation of a system (1). The 
+computer simulation plays out the anticipated behavior of the system 
+based on the input parameters, which can be changed to mirror 
+various potential scenarios. This is particularly useful for interventions 
+and policies that are time-consuming, expensive, and/or infeasible to 
+test in controlled trials or in real-world settings.
+The knowledge generated from such systems modeling can inform 
+research and policy decision making, such as helping policymakers 
+leverage an ideal combination of interventions to create the most 
+impact or prioritize use of limited resources, as well as identifying 
+potential unintended consequences of a modeled intervention. 
+Unintended consequences may arise because complex systems are 
+governed by feedback loops, time delays, and process of accumulation, 
+which are not fully understood and usually ignored when designing 
+interventions (1). This has important implications that need to 
+be  considered a priori, such as how to combine and sequence 
+intervention strategies (14).
+4 Integrating design thinking and 
+systems science
+Design thinking or systems science approaches can be used on 
+their own, but embedding systems science approaches into the design 
+thinking process can enhance design thinking’s usefulness as a 
+framework to facilitate an iterative process toward systems change. 
+Thus, certain systems science methods can enhance problem 
+definition, while others can support the prototyping and testing phases.
+If design thinking methods are most helpful in ‘packaging’ 
+strategies (tools, devices, procedures) that will help achieve a desired 
+objective or goal, then systems science methods are most helpful in 
+defining and testing, via simulation, a theory of change, expressed as 
+an overarching dynamic hypothesis. For example, again with reference 
+to the HCS-NY, system dynamics modeling explains simulated trends 
+in overdose fatality as a function of core feedback loops (structures). 
+In turn, purposeful scenario analyses demonstrate how and when a 
+specific (future) goal could be reached over time, given sufficient 
+resources to support access to evidence-based harm reduction and 
+treatment capacities. In this manner, the system dynamics model helps 
+inform how to get ‘from A to B,’ and reveals key trade-offs and/or 
+unintended consequences associated with achieving (and sustaining) 
+such a goal. Thus, systems science methods model a problem (drivers 
+of the status quo, or base case) and its associated solution space 
+(potential goals), which calls for design thinking methods to ideate 
+and prototype how to effectively achieve a goal.
+Figure 2 describes how systems science approaches could fit into 
+a design thinking framework that aims to fill gaps in implementation 
+FIGURE 2
+Leveraging systems science and design thinking to advance implementation science. Source: developed by T. T-K. Huang for this manuscript. In 
+practice, it is an iterative process to bring together systems science, design thinking, and implementation science. As iterations occur both within each 
+approach as well as collectively, the learnings immediately feed back into other parts of the process.
+
+
+=== PAGE 5 ===
+
+Huang et al.
+10.3389/fpubh.2024.1368050
+Frontiers in Public Health
+05
+frontiersin.org
+science—namely, how to intervene on determinants of successful 
+implementation and how to sustain and scale evidence-based public 
+health solutions. For example, the systems science method of 
+participatory modeling to engage communities and develop a shared 
+model of a problem can serve design thinking’s first phase of 
+empathizing and defining the problem, as in the HCS-NY State 
+example described earlier. Systems science can also serve the 
+experimentation and rapid prototyping process in design thinking by 
+applying simulation modeling methods to test potential interventions. 
+For example, applications of systems modeling approaches to improve 
+food environments in Baltimore, Maryland included use of agent-
+based models—which use computer simulation to study complex 
+systems from the ground up by examining how individual elements 
+of a system (agents) behave as a function of individual properties, their 
+environment, and their interactions with each other—to simulate the 
+effects of placing warning labels on sugar-sweetened beverages in 
+different combinations of grocery stores, corner stores, schools, and 
+other settings where the beverages are available. The model estimated 
+the potential effect of the labels on purchase and consumption of 
+sugar-sweetened beverages (42).
+Figure 2 also shows business modeling as an integral input to the 
+process of sustaining and scaling solutions. This is because to move 
+toward market feasibility, a viable and scalable model of revenue 
+generation and cost-effective operation identified through the design 
+thinking process must accompany the solution-oriented innovation. 
+Business modeling entails defining the value proposition of a proposed 
+public health solution, key inputs (e.g., partners, resources, and 
+activities), customer base and segments, go-to-market strategies, and 
+a revenue model. Even not-for-profit organizations must generate 
+resources 
+to 
+achieve 
+sustainability 
+beyond 
+traditional 
+grant mechanisms.
+5 Discussion
+We urge three actions for the field of public health to help promote 
+effective implementation, sustainment, and scaling of evidence-based 
+public health solutions.
+First, we must move toward use of a solution-oriented paradigm 
+when approaching public health challenges. The public health 
+community is generally organized around the problem-solving 
+paradigm driven by scientific method, which is marked by a 
+hypothesis-driven, linear, and often top-down approach to both 
+problem solving and intervention design. This paradigm is well-suited 
+for identifying drivers of health or disease but has less utility in 
+determining how to intervene on these determinants, let alone sustain 
+and scale an intervention, in an innately dynamic and complex system.
+Second, we  need more rigorous research and engagement in 
+cross-disciplinary collaboration to test best practices for incorporating 
+design thinking and systems science approaches into the 
+implementation of community-engaged public health interventions. 
+A recent systematic review concluded that few published peer-
+reviewed studies exist that use systems thinking and implementation 
+science for designing and delivering population health interventions 
+(43). Furthermore, we are not aware of any examples of empirical 
+research that integrates all three—systems science, design thinking, 
+and implementation science—in service of optimizing future 
+intervention design and delivery. Documenting future efforts and 
+assessing how these approaches facilitate and enhance intervention 
+implementation can support development and dissemination of tools 
+and training in best practices.
+Third, design thinking and systems science curricula should 
+be  routinely incorporated into public health education. Design 
+thinking is not a standard subject domain or practice method taught 
+in public health schools, (44) and systems thinking—although now 
+listed as a competency of graduate programs accredited by the Council 
+on Education for Public Health (CEPH)—is not addressed in adequate 
+depth in most public health programs. Interest is emerging in offering 
+design thinking and entrepreneurship training in public health 
+curriculum to teach future public health professionals how to create 
+and apply business models, among other skills (such as marketing, 
+finance, and business development and operations) that are important 
+to scaling public health solutions (45–47). Such exposure to other 
+disciplines can help set the stage for public health professionals to 
+reach across disciplines and work with diverse collaborators, including 
+those in the private sector.
+In conclusion, the magnitude and persistence of current public 
+health challenges demands creativity, innovation, and market 
+feasibility. Most implementation science frameworks are top-down, 
+deterministic, and linear, leaving gaps in understanding of both how 
+to intervene on determinants of successful implementation and how 
+to sustain and scale evidence-based solutions. Design thinking 
+provides a deliberate, replicable process for intervention 
+implementation and scaling that may increase acceptability and 
+effectiveness of public health interventions by actively engaging 
+communities in the design process and rapidly iterating innovation 
+prototypes to maximize success. Systems science provides processes 
+for understanding and managing complexity as well as testing 
+assumptions and intervention ideas. A new paradigm for 
+transformative change in public health is the integration of a design 
+thinking approach with systems science and implementation science 
+to promote more effective implementation, sustainment, and scaling 
+of public health innovation.
+Data availability statement
+The original contributions presented in the study are included in 
+the article/supplementary material, further inquiries can be directed 
+to the corresponding author.
+Author contributions
+TH: Writing – review & editing, Conceptualization, Funding 
+acquisition, Supervision. EC: Writing – review & editing, Writing – 
+original draft. EH: Writing – review & editing. CH: Writing – review 
+& editing. DS: Writing – review & editing. DL: Writing – review & 
+editing. NS: Writing – review & editing. PH: Writing – review & 
+editing.
+Funding
+The author(s) declare that financial support was received for the 
+research, authorship, and/or publication of this article. This work was 
+
+
+=== PAGE 6 ===
+
+Huang et al.
+10.3389/fpubh.2024.1368050
+Frontiers in Public Health
+06
+frontiersin.org
+supported in part by grants from the National Cancer Institute 
+(R01CA206877), National Institute of Minority Health and Health 
+Disparities (R01MD018209), and the Centers for Disease Control and 
+Prevention (U48DP006396). The funders were not involved in writing 
+the manuscript nor in the decision to submit for publication.
+Conflict of interest
+EC was employed by EAC Health and Nutrition, LLC, served as a 
+science writer and editor for this manuscript, and received consulting fees 
+from the CUNY Graduate School of Public Health and Health Policy for 
+these services. EH and CH each reported receipt of an honorarium for 
+delivering a guest lecture for CUNY on topics related to the content of the 
+manuscript. DS was employed by company d.studio.
+The remaining authors declare that the research was conducted in 
+the absence of any commercial or financial relationships that could 
+be construed as a potential conflict of interest.
+The author(s) declared that they were an editorial board member 
+of Frontiers, at the time of submission. This had no impact on the peer 
+review process and the final decision.
+Publisher's note
+All claims expressed in this article are solely those of the authors 
+and do not necessarily represent those of their affiliated organizations, 
+or those of the publisher, the editors and the reviewers. Any product 
+that may be evaluated in this article, or claim that may be made by its 
+manufacturer, is not guaranteed or endorsed by the publisher.
+References
+	1.	Sterman JD. Learning from evidence in a complex world. Am J Public Health. (2006) 
+96:505–14. doi: 10.2105/AJPH.2005.066043
+	2.	Centers for Disease Control and Prevention (Division of Nutrition, Physical 
+Activity, and Obesity, National Center for Chronic Disease Prevention and Health 
+Promotion) Adult obesity facts. (2022). Available at: https://www.cdc.gov/obesity/data/
+adult.html. Accessed May 24, 2023.
+	3.	Zajacova A, Grol-Prokopczyk H, Limani M, Schwarz C, Gilron I. Prevalence and 
+correlates of prescription opioid use among US adults, 2019-2020. PLoS One. (2023) 
+18:e0282536. doi: 10.1371/journal.pone.0282536
+	4.	Luke DA, Stamatakis KA. Systems science methods in public health: dynamics, 
+networks, and agents. Annu Rev Public Health. (2012) 33:357–76. doi: 10.1146/annurev-
+publhealth-031210-101222
+	5.	Glasgow RE, Emmons KM. How can we increase translation of research into 
+practice? Types of evidence needed. Annu Rev Public Health. (2007) 28:413–33. doi: 
+10.1146/annurev.publhealth.28.021406.144145
+	6.	Balas EA, Boren SA. Managing clinical knowledge for health care improvement In: 
+J Bemmel and AT McCray, editors. Yearbook of medical informatics 2000: Patient-
+centered systems, vol. 9. Stuttgart, Germany: Schattauer (2000). 65–70.
+	7.	Hanney SR, Castle-Clarke S, Grant J, Guthrie S, Henshall C, Mestre-Ferrandiz J, 
+et al. How long does biomedical research take? Studying the time taken between 
+biomedical and health research and its translation into products, policy, and practice. 
+Health Res Policy Syst. (2015) 13:1. doi: 10.1186/1478-4505-13-1
+	8.	Hailemariam M, Bustos T, Montgomery B, Barajas R, Evans LB, Drahota A. 
+Evidence-based intervention sustainability strategies: a systematic review. Implement Sci. 
+(2019) 14:57. doi: 10.1186/s13012-019-0910-6
+	9.	Lobb R, Colditz GA. Implementation science and its application to population 
+health. Annu Rev Public Health. (2013) 34:235–51. doi: 10.1146/annurev-
+publhealth-031912-114444
+	10.	University of Washington. T﻿hheories, models, and frameworks. (2023). Available at: 
+https://impsciuw.org/implementation-science/research/frameworks/. 
+Accessed 
+September 5, 2023
+	11.	Finn EB, Whang C, Hong PH, Costa SA, Callahan EA, Huang TT. Strategies to 
+improve the implementation of intensive lifestyle interventions for obesity. Front Public 
+Health. (2023) 11:1202545. doi: 10.3389/fpubh.2023.1202545
+	12.	Pinto RM, Park SE, Miles R, Ong PN. Community engagement in dissemination 
+and implementation models: a narrative review. Implement Res Pract. (2021) 
+2:263348952098530. doi: 10.1177/2633489520985305
+	13.	Glasgow RE, Battaglia C, McCreight M, Ayele R, Maw AM, Fort MP, et al. 
+Use of the reach, effectiveness, adoption, implementation, and maintenance (RE-
+AIM) framework to guide iterative adaptations: applications, lessons learned, and 
+future directions. Front Health Serv. (2022) 2:959565. doi: 10.3389/
+frhs.2022.959565
+	14.	Huang TTK, Ferris EB. Connecting the dots: translating systems thinking into 
+innovative solutions for childhood obesity In: MI Goran, editor. Childhood obesity: 
+Causes, consequences, and intervention approaches. Boca Raton, FL: CRC Press (2017)
+	15.	Tsai J. Building structural empathy to marshal critical education into 
+compassionate practice: evaluation of a medical school critical race theory course. J Law 
+Med Ethics. (2021) 49:211–21. doi: 10.1017/jme.2021.31
+	16.	Altman M, Huang TTK, Breland JY. Design thinking in health care. Prev Chronic 
+Dis. (2018) 15:E117. doi: 10.5888/pcd15.180128
+	17.	Knutz E, Markussen T. Politics of participation in design research: learning from 
+participatory art. Des Issues. (2020) 36:59–76. doi: 10.1162/desi_a_00575
+	18.	Beres LK, Simbeza S, Holmes CB, Mwamba C, Mukamba N, Sharma A, et al. 
+Human-centered design Llssons for implementation science: improving the 
+implementation of a patient-centered care intervention. J Acquir Immune Defic Syndr. 
+(2019) 82:S230–43. doi: 10.1097/QAI.0000000000002216
+	19.	Dopp AR, Parisi KE, Munson SA, Lyon AR. Aligning implementation and user-
+centered design strategies to enhance the impact of health services: results from a 
+concept mapping study. Implement Sci Commun. (2020) 1:17. doi: 10.1186/
+s43058-020-00020-w
+	20.	Haines ER, Dopp A, Lyon AR, Witteman HO, Bender M, Vaisson G, et al. 
+Harmonizing 
+evidence-based 
+practice, 
+implementation 
+context, 
+and 
+implementation strategies with user-centered design: a case example in young 
+adult cancer care. Implement Sci Commun. (2021) 2:45. doi: 10.1186/
+s43058-021-00147-4
+	21.	Mariana O, Eduardo Z, André LF. Design thinking as an approach for innovation 
+in healthcare: systematic review and research avenues. BMJ Innovations. (2021) 7:491–8. 
+doi: 10.1136/bmjinnov-2020-000428
+	22.	Voorheis P, Zhao A, Kuluski K, Pham Q, Scott T, Sztur P, et al. Integrating 
+behavioral science and design thinking to develop mobile health interventions: 
+systematic scoping review. JMIR Mhealth Uhealth. (2022) 10:e35799. doi: 
+10.2196/35799
+	23.	Frerichs L, Brittin J, Sorensen D, Trowbridge MJ, Yaroch AL, Siahpush M, 
+et al. Influence of school architecture and design on healthy eating: a review of 
+the evidence. Am J Public Health. (2015) 105:e46–57. doi: 10.2105/
+AJPH.2014.302453
+	24.	Brittin J, Sorensen D, Trowbridge M, Lee KK, Breithecker D, Frerichs L, et al. 
+Physical activity design guidelines for school architecture. PLoS One. (2015) 
+10:e0132597. doi: 10.1371/journal.pone.0132597
+	25.	Kia-Keating M, Santacrose DE, Liu SR, Adams J. Using community-based 
+participatory research and human-centered design to address violence-related health 
+disparities among Latino/a youth. Fam Community Health. (2017) 40:160–9. doi: 
+10.1097/FCH.0000000000000145
+	26.	CUNY Center for Systems and Community Design. Design thinking for parks: 
+Activating communities to increase park use. New York, NY: City University of New York 
+(2018).
+	27.	Dopp AR, Parisi KE, Munson SA, Lyon AR. A glossary of user-centered design 
+strategies for implementation experts. Transl Behav Med. (2019) 9:1057–64. doi: 
+10.1093/tbm/iby119
+	28.	Lyon AR, Koerner K. User-centered Design for Psychosocial Intervention 
+Development and Implementation. Clin Psychol. (2016) 23:180–200. doi: 10.1111/
+cpsp.12154
+	29.	Chen E, Neta G, Roberts MC. Complementary approaches to problem solving in 
+healthcare and public health: implementation science and human-centered design. 
+Transl Behav Med. (2021) 11:1115–21. doi: 10.1093/tbm/ibaa079
+	30.	Norman DA, Draper SW. User-centered system design: New perspectives on human-
+computer interaction. Mahwah, NJ: Lawrence Erlbaum Associates (1986).
+	31.	Campbell LK, Svendsen E, Johnson M, Landau L. Activating urban environments 
+as social infrastructure through civic stewardship. Urban Geogr. (2021) 43:713–34. doi: 
+10.1080/02723638.2021.1920129
+
+
+=== PAGE 7 ===
+
+Huang et al.
+10.3389/fpubh.2024.1368050
+Frontiers in Public Health
+07
+frontiersin.org
+	32.	Mitchell M. Complexity: A guided tour. New York, NY: Oxford University Press 
+(2009).
+	33.	Powell BJ, Beidas RS, Lewis CC, Aarons GA, McMillen JC, Proctor EK, et al. 
+Methods to improve the selection and tailoring of implementation strategies. J 
+Behav Health Serv Res. (2017) 44:177–94. doi: 10.1007/s11414-015-9475-6
+	34.	Luke DA, Powell BJ, Paniagua-Avila A. Bridges and mechanisms: integrating 
+systems science thinking into implementation research. Annu Rev Public Health. (2023) 
+45. doi: 10.1146/annurev-publhealth-060922-040205
+	35.	Holmes BJ, Finegood DT, Riley BL, Best A. Systems thinking in dissemination and 
+implementation research In: RC Brownson, GA Colditz and EK Proctor, editors. 
+Dissemination and implementation research in health: Translating science to practice. New 
+York: Oxford University Press (2012)
+	36.	Braithwaite J, Churruca K, Long JC, Ellis LA, Herkes J. When complexity science 
+meets implementation science: a theoretical and empirical analysis of systems change. 
+BMC Med. (2018) 16:63. doi: 10.1186/s12916-018-1057-z
+	37.	Richardson GP. Reflections on the foundations of system dynamics. Syst Dyn Rev. 
+(2011) 27:219–43. doi: 10.1002/sdr.462
+	38.	Hovmand PS. Group model building and community-based system dynamics 
+process. Community based system dynamics. New York, NY: Springer New York; (2014). 
+p. 17–30.
+	39.	Zimmerman L, Lounsbury DW, Rosen CS, Kimerling R, Trafton JA, Lindley SE. 
+Participatory system dynamics modeling: increasing stakeholder engagement and 
+precision to improve implementation planning in systems. Admin Pol Ment Health. 
+(2016) 43:834–49. doi: 10.1007/s10488-016-0754-1
+	40.	Vennix JAM. Group model-building: tackling messy problems. Syst Dyn Rev. (1999) 
+15:379–401. doi: 10.1002/(SICI)1099-1727(199924)15:4<379::AID-SDR179>3.0.CO;2-E
+	41.	Sabounchi NS, Lounsbury DW, Iftikhar P, Lutete P, Trajkoska B, Estrada WM, et al. 
+Qualitative system dynamics modeling to support community planning in opioid 
+overdose 
+prevention. 
+Res 
+Soc 
+Work 
+Pract. 
+(2023) 
+33:282–95. 
+doi: 
+10.1177/10497315221118109
+	42.	Lee BY, Ferguson MC, Hertenstein DL, Adam A, Zenkov E, Wang PI, et al. 
+Simulating the impact of sugar-sweetened beverage warning labels in three cities. Am J 
+Prev Med. (2018) 54:197–204. doi: 10.1016/j.amepre.2017.11.003
+	43.	Whelan J, Fraser P, Bolton KA, Love P, Strugnell C, Boelsen-Robinson T, et al. 
+Combining systems thinking approaches and implementation science constructs within 
+community-based prevention: a systematic review. Health Res Policy Syst. (2023) 21:85. 
+doi: 10.1186/s12961-023-01023-4
+	44.	Huang TTK, Aitken J, Ferris E, Cohen N. Design thinking to improve 
+implementation of public health interventions: an exploratory case study on enhancing 
+park use. Des Health. (2018) 2:236–52. doi: 10.1080/24735132.2018.1541047
+	45.	Huang TTK, Ciari A, Costa SA, Chahine T. Advancing public health 
+entrepreneurship to foster innovation and impact. Front Public Health. (2022) 10:923764. 
+doi: 10.3389/fpubh.2022.923764
+	46.	Romero V, Donaldson H. Human-centred design thinking and public health 
+education: a scoping review. Health Promot J Austr. (2023). doi: 10.1002/hpja.802
+	47.	Skywark ER, Chen E, Jagannathan V. Using the design thinking process to co-create 
+a new, interdisciplinary design thinking course to train 21st century graduate students. 
+Front Public Health. (2022) 9:777869. doi: 10.3389/fpubh.2021.777869
