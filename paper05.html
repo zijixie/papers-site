@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>05 &middot; "Ownership, Not Just Happy Talk" &middot; ACM FAccT 2025</title>
+<link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="reader.css">
+</head>
+<body data-paper-id="paper05">
+<nav>
+  <a class="brand" href="index.html"><span class="brand-accent">&#9670;</span> 设计研究文献库</a>
+  <div class="nav-links">
+    <a href="index.html">目录</a>
+    <a href="paper01.html">01</a><a href="paper02.html">02</a><a href="paper03.html">03</a>
+    <a href="paper04.html">04</a><a href="paper05.html" class="active">05</a><a href="paper06.html">06</a>
+    <a href="paper07.html">07</a><a href="paper08.html">08</a><a href="paper09.html">09</a>
+  </div>
+</nav>
+
+<div class="paper-hero">
+  <div class="paper-num">Paper 05 &middot; Participatory LLM Design &middot; ACM FAccT 2025</div>
+  <h1>"Ownership, Not Just Happy Talk"：新闻业参与式大语言模型的协同设计</h1>
+  <h2>"Ownership, Not Just Happy Talk": Co-Designing a Participatory Large Language Model for Journalism</h2>
+  <div class="paper-meta">
+    <span>Tseng, Young, Aubin Le Quere, Rinehart, Suresh</span>
+    <span>ACM FAccT 2025</span><span>2025</span>
+    <span><a href="https://doi.org/10.1145/nnnnnnn.nnnnnnn" target="_blank">arXiv: 2501.17299</a></span>
+  </div>
+  <div class="ranking-hero-box">
+    <span class="rh-item rh-accent">CORE A*</span>
+    <span class="rh-item rh-green">FAccT 2025</span>
+    <span class="rh-item">AI/ML顶会 · 公平/问责/透明</span>
+    <span class="rh-item rh-blue">参与式AI设计</span>
+  </div>
+</div>
+
+<div class="container">
+<a class="back-btn" href="index.html">&larr; Back to Index</a>
+
+<div class="abstract-card">
+  <div class="abstract-title">Abstract</div>
+  <div class="bilingual-cols">
+    <div class="lang-col en"><span class="lang-label en">English</span>
+      <p>Journalism has emerged as an essential domain for understanding the uses, limitations, and impacts of large language models (LLMs) in the workplace. News organizations face divergent financial incentives: LLMs already permeate newswork processes within financially constrained organizations, even as ongoing legal challenges assert that AI companies violate their copyright. At stake are key questions about what LLMs are created to do, and by whom: How might a journalist-led LLM work, and what can participatory design illuminate about the present-day challenges about adapting "one-size-fits-all" foundation models to a given context of use? In this paper, we undertake a co-design exploration to understand how a participatory approach to LLMs might address opportunities and challenges around AI in journalism. Our 20 interviews with reporters, data journalists, editors, labor organizers, product leads, and executives highlight macro, meso, and micro tensions that designing for this opportunity space must address. From these desiderata, we describe the result of our co-design work: organizational structures and functionality for a journalist-controlled LLM. In closing, we discuss the limitations of commercial foundation models for workplace use, and the methodological implications of applying participatory methods to LLM co-design.</p>
+    </div>
+    <div class="lang-col zh"><span class="lang-label zh">中文摘要</span>
+      <p>新闻业已成为理解大语言模型（LLM）在工作场所中的用途、局限性和影响的关键领域。新闻机构面临着相互矛盾的财务激励：在财务受限的组织中，LLM已经渗透到新闻工作流程中，与此同时，持续的法律挑战声称AI公司侵犯了它们的版权。核心问题在于LLM被创造出来做什么、由谁创造：一个由记者主导的LLM如何运作？参与式设计能够揭示关于将"一刀切"的基础模型适应用户特定使用情境的哪些当下挑战？在本文中，我们进行了一项协同设计探索，以理解参与式方法如何应对AI在新闻业中的机遇与挑战。我们对记者、数据新闻工作者、编辑、劳工组织者、产品负责人和高管进行了20次访谈，揭示了设计这一机遇空间必须解决的宏观、中观和微观张力。基于这些需求，我们描述了协同设计工作的成果：一个由记者控制的LLM的组织结构和功能。最后，我们讨论了商业基础模型在工作场所使用的局限性，以及将参与式方法应用于LLM协同设计的方法论启示。</p>
+    </div>
+  </div>
+</div>
+
+<div class="content-card">
+  <div class="bilingual-block">
+    <div class="section-title">1. Introduction &middot; 引言</div>
+    <div class="bilingual-cols">
+      <div class="lang-col en"><span class="lang-label en">English</span>
+        <p>The tenuous relationship between journalism and technological innovation has reached a new inflection point. Digitization, datafication, and platformization have transformed how journalists produce and audiences consume news, and affected the types and overall quality of news reporting. As ad revenues shrink, the news industry faces a monetization crisis: more than one third of journalists reported layoffs or buyouts at their organization in 2024. Even as the industry struggles against these headwinds, sustainable news ecosystems remain vital for healthy community attachment, toward democratic participation, and to hold powers to account.</p>
+        <p>Widespread adoption of generative AI and large language models (LLMs) has only introduced new crises for journalists and news consumers. Today's advanced models rely on data scraped from news outlets. Simultaneously, those very models threaten journalists' livelihoods by automating fundamental aspects of their craft in an industry already grappling with financial instability. While language technologies have long been used for template-ready forms of news production, like financial and sports briefings, the newest language technologies have broadened the scope of potential automated coverage. Already today, more than 80% of newsrooms are estimated to leverage AI for newswork.</p>
+        <p>These challenges have led to divergent opinions and approaches to generative AI across journalism. Much of the industry is optimistic that AI could boost revenues toward stabilizing journalism's economic crisis, by personalizing news products to audiences, increasing content reach, and optimizing workflow efficiency. Still, many journalists take issue with how tech companies have broadly profited from data scraped from news outlets without sharing revenues back to newsrooms. These tensions have led newsrooms to take concrete—and divergent—actions. Some newsrooms have struck deals with tech companies like OpenAI, hoping to recoup their intellectual property. Others have taken legal action against OpenAI and Microsoft, citing copyright infringement.</p>
+        <p>In light of the increasing corporate capture of data and AI tools across the news industry, we argue that there is a critical opportunity to instead pursue a participatory approach to the development and governance of LLMs and AI, owned and led by journalists. The FAccT community has broadly explored how participatory approaches to AI might ensure that key stakeholders, data providers, and affected communities maintain decision-making power in the design of AI systems. In the present moment, where journalists' work is expropriated by corporate LLMs without compensation or design input, questions of meaningful participation are particularly salient.</p>
+        <p>With this motivation, in this work, we set out to conduct a participatory approach to building an LLM, with, for, and led by journalists. We began by establishing a practitioner-researcher partnership, including practitioners with deep experience as journalists and researchers from the FAccT and HCI communities steeped in participatory approaches. Our team then conducted a study with 20 journalists across multiple locations, organization sizes, and roles within newsmaking. Through these interviews, we synthesized key tensions that must be addressed by a journalist-controlled LLM to be successful: structural and market forces, inter-organization competition, and effects on individual journalists and newsrooms. Responding to these tensions and as part of a co-design exercise with participants, we then present an iterated proposal for how to structure a journalist-controlled LLM. We close with reflections on the implications of our findings for commercial foundation models and methodological lessons for FAccT scholars and practitioners similarly interested in helping affected workforces and communities shape these novel technologies.</p>
+      </div>
+      <div class="lang-col zh"><span class="lang-label zh">中文</span>
+        <p>新闻业与技术创新之间脆弱的关系已到达一个新的转折点。数字化、数据化和平台化已经改变了记者生产新闻和受众消费新闻的方式，并影响了新闻报道的类型和整体质量。随着广告收入萎缩，新闻行业面临着一场货币化危机：2024年，超过三分之一的记者报告其所在组织发生了裁员或买断。即便行业在逆风中挣扎，可持续的新闻生态系统对健康的社区依附、民主参与以及问责权力仍然至关重要。</p>
+        <p>生成式AI和大语言模型（LLM）的广泛采用为记者和新闻消费者带来了新的危机。当今的先进模型依赖于从新闻机构抓取的数据。与此同时，这些模型通过自动化新闻制作的基本环节，威胁着记者的生计——而该行业本已在财务不稳定中挣扎。虽然语言技术长期被用于模板化的新闻生产（如财经和体育简报），但最新的语言技术已经拓宽了潜在自动化报道的范围。据估计，如今已有超过80%的新闻编辑室利用AI进行新闻工作。</p>
+        <p>这些挑战导致新闻界对生成式AI产生了分歧性的观点和做法。行业中的许多人持乐观态度，认为AI可以通过向受众个性化新闻产品、增加内容覆盖面和优化工作流程效率来提高收入，从而稳定新闻业的经济危机。然而，许多记者对科技公司广泛从新闻机构抓取数据获利却未与新闻编辑室分享收入的做法提出异议。这些紧张局势导致新闻编辑室采取了具体且分歧的行动。一些新闻编辑室与OpenAI等科技公司达成了协议，希望收回其知识产权。另一些则援引版权侵权对OpenAI和微软采取了法律行动。</p>
+        <p>鉴于数据和AI工具在新闻行业中的企业控制日益增强，我们认为存在一个关键机遇：转而追求一种由记者拥有和领导的、参与式的LLM开发和治理方法。FAccT社区已广泛探索了参与式AI方法如何确保关键利益相关者、数据提供者和受影响社区在AI系统设计中保持决策权。在当下，当记者的工作被企业LLM无偿占有且未经设计输入时，有意义的参与问题尤为突出。</p>
+        <p>基于这一动机，在本工作中，我们着手对构建一个由记者主导、为记者服务并与记者共建的LLM采取参与式方法。我们首先建立了从业者-研究者伙伴关系，包括具有深厚记者经验的从业者以及来自FAccT和人机交互社区、精通参与式方法的研究者。随后，我们的团队对来自不同地点、不同组织规模和不同新闻角色的20名记者进行了研究。通过这些访谈，我们综合了一个记者控制的LLM要想成功必须解决的关键张力：结构和市场力量、组织间竞争、以及对个体记者和新闻编辑室的影响。回应这些张力并作为与参与者协同设计的一部分，我们提出了一个关于如何构建记者控制LLM的迭代方案。最后，我们反思了研究成果对商业基础模型的启示，以及对于同样希望帮助受影响劳动力和社区塑造这些新兴技术的FAccT学者和实践者的方法论意义。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="content-card">
+  <div class="bilingual-block">
+    <div class="section-title">2. Related Works &middot; 相关工作</div>
+    <div class="bilingual-cols">
+      <div class="lang-col en"><span class="lang-label en">English</span>
+        <p>Our work sits at the intersection between AI's effect on journalism (2.1) and participatory AI (2.2).</p>
+        <p><strong>2.1 AI in Journalism.</strong> Generative AI has sprawled in influence across the news media ecosystem. The ability to produce naturalistic and inexpensive text, images, and videos has inspired imagination across the industry. An estimated 82% of newsrooms use AI today, up from 37% in 2019, with the leading use cases being the automation of news writing, data analysis, and personalization. LLMs have impacted not only how journalists produce news, but also how people consume media and information. Audiences increasingly rely on AI-augmented services to access news content, e.g., through news aggregation platforms like Apple News. Search platforms, too, now use LLMs to supply information: Google, Perplexity, and other search engines now answer queries with summaries generated from news content.</p>
+        <p>The rapid uptake of these tools has not been without concern. Practitioners and scholars have raised that AI might exacerbate issues of credibility and authenticity between journalists and their audiences, especially as AI's problems of bias, impact on privacy, and wider ethical implications remain unresolved. Cools and Diakopoulos synthesized a set of "perils" that loom (lack of judgment, hallucination and biases, and loss of autonomy), even as journalists explore attendant "possibilities" (efficiency and scale, increased personalization).</p>
+        <p>Uptake of automation has historically been slow among journalists: changes in workflow can disrupt deadlines and breaking news, and their training in teasing out complicated narratives makes them slower to adopt new technologies. Against this historical hesitancy, recent uses of AI in news have become cautionary tales. In 2023, Sports Illustrated outsourced content creation to a third-party vendor that used generative AI to create fake author biographies and photos, inciting debate around the lack of transparency in AI news reporting. Similarly, Apple News recently withdrew a feature that automatically summarized news stories after its LLM generated false information.</p>
+        <p>Beyond these impacts on public trust, scholars have also expressed concerns around what AI means for journalistic work. Already, journalists perceive generative AI as a greater threat, with a steeper learning curve, than prior types of automated news writing. Jones et al. found journalists increasingly rely on AI tools, but do not find these systems "intelligible." Xiao et al. found journalists perceived AI as particularly "inaccessible," and argued for more collaboration with technology companies when out-of-the-box AI tools do not meet journalistic needs. Dodds et al. identified knowledge silos within news organizations: how the knowledge to understand AI—technical know-how, strategy, and ethical alignment—is currently siloed across roles, teams, and levels of seniority.</p>
+        <p>This paper complements this literature by taking a participatory approach to developing LLMs for journalists that centers organizational needs and decision-making, preceding human-AI interfaces. We argue that considering organizational needs and constraints (at both inter- and intra-organizational scales) is key to bridging the gap between what is technically feasible, what is organizationally realistic, and what is socially responsible.</p>
+        <p><strong>2.2 Participatory Approaches to LLMs.</strong> To address the perils and possibilities of AI in journalism, we adopt what FAccT has framed as a participatory approach to AI. This approach recognizes first that the development of AI models, as well as the compilation and storage of the datasets they are trained on, is heavily centralized within large corporations. Downstream applications and users must accept a pre-trained model as-is, without control over or transparency into data sources, underlying design decisions, fine-tuning or alignment procedures, and future data or model changes.</p>
+        <p>Participatory approaches stand as a potential antidote to these imbalances: to distribute power to those who typically do not have it. Scholars have characterized a spectrum of approaches, from those that are more tokenistic (e.g., one-time user feedback that shapes model fine-tuning) to those that attempt to meaningfully share decision-making power (e.g., sustained relationships with affected communities who are involved in many project stages, from data collection to evaluation). The problem of how to meaningfully share power is particularly challenging for today's LLMs, due to their centralized and largely corporate control, and the scale of resources devoted to their commercialization as "one-size-fits-all" technologies. Our work builds on Suresh et al.'s call to do this for journalism, with journalists, drawing out lessons not only for journalism as a domain for AI application, but also participatory design and governance of AI.</p>
+      </div>
+      <div class="lang-col zh"><span class="lang-label zh">中文</span>
+        <p>我们的工作处于AI对新闻业的影响（2.1）与参与式AI（2.2）的交叉点。</p>
+        <p><strong>2.1 新闻业中的AI。</strong>生成式AI的影响力已遍布新闻媒体生态系统。生成自然且廉价文本、图像和视频的能力激发了整个行业的想象力。据估计，如今82%的新闻编辑室使用AI，高于2019年的37%，主要用例包括新闻写作自动化、数据分析和个性化推荐。LLM不仅影响了记者生产新闻的方式，也影响了人们消费媒体和信息的方式。受众越来越依赖AI增强服务来获取新闻内容，例如通过Apple News等新闻聚合平台。搜索平台现在也使用LLM提供信息：Google、Perplexity等搜索引擎现在通过从新闻内容生成的摘要来回答查询。</p>
+        <p>这些工具的快速采用并非毫无隐忧。从业者和学者提出，AI可能加剧记者与受众之间的可信度和真实性问题，尤其是在AI的偏见、隐私影响和更广泛的伦理影响尚未解决的情况下。Cools和Diakopoulos综合了一组 looming "危险"（缺乏判断力、幻觉和偏见、自主性丧失），同时记者们也在探索随之而来的"可能性"（效率和规模、增强个性化）。</p>
+        <p>从历史上看，记者对自动化的采用一直较为缓慢：工作流程的变化可能打乱截止日期和突发新闻报道，他们在梳理复杂叙事方面的训练也使他们较慢采用新技术。在这种历史性的犹豫背景下，近期AI在新闻领域的应用已成为警示故事。2023年，Sports Illustrated将内容创作外包给一家第三方供应商，该供应商使用生成式AI创建虚假的作者简介和照片，引发了关于AI新闻报道缺乏透明度的辩论。类似地，Apple News最近在其LLM生成虚假信息后撤消了一项自动总结新闻故事的功能。</p>
+        <p>除了对公众信任的影响外，学者们还对AI对新闻工作的影响表示担忧。记者已经将生成式AI视为比以往类型的自动新闻写作更具威胁性、学习曲线更为陡峭的技术。Jones等人发现记者越来越依赖AI工具，但认为这些系统不"可理解"。Xiao等人发现记者认为AI特别"难以接近"，并主张在现成的AI工具无法满足新闻需求时，与科技公司进行更多合作。Dodds等人发现了新闻组织内的知识孤岛：理解AI所需的知识——技术诀窍、战略和伦理对齐——目前在角色、团队和资历层级之间被孤立。</p>
+        <p>本文通过采用参与式方法为记者开发LLM来补充这些文献，将组织需求和决策置于人机界面之前。我们认为，考虑组织需求和约束（在组织间和组织内两个层面）是弥合技术上可行、组织上现实和社会上负责任之间差距的关键。</p>
+        <p><strong>2.2 LLM的参与式方法。</strong>为了应对AI在新闻业的危险和可能性，我们采用了FAccT所定义的参与式AI方法。这种方法首先认识到AI模型的开发以及其训练数据集的编译和存储高度集中于大型企业手中。下游应用和用户必须按原样接受预训练模型，无法控制或透明了解数据来源、底层设计决策、微调或对齐程序以及未来的数据或模型变更。</p>
+        <p>参与式方法可以成为这些不平衡的潜在解药：将权力分配给通常不拥有权力的人。学者们描述了多种方法的光谱，从更具象征性的方法（如一次性用户反馈来影响模型微调）到试图有意义地分享决策权的方法（如与受影响社区建立持续关系，使他们参与从数据收集到评估的多个项目阶段）。对于当今的LLM而言，如何有意义地分享权力的问题尤其具有挑战性，因为这些模型集中且主要由企业控制，并且有大量资源投入其作为"一刀切"技术的商业化。我们的工作建立在Suresh等人将参与式方法应用于新闻业的呼吁之上，不仅为新闻业作为AI应用领域提炼经验，也为AI的参与式设计和治理提供启示。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="content-card">
+  <div class="bilingual-block">
+    <div class="section-title">3. Methods &middot; 研究方法</div>
+    <div class="bilingual-cols">
+      <div class="lang-col en"><span class="lang-label en">English</span>
+        <p>Our work took a participatory approach based on (i) participatory action research, (ii) semi-structured interviews, and (iii) co-design. In AI and technology design, participatory methods offer principles and practices for researchers to more fully collaborate with communities impacted by technology, and to better reflect their values, preferences, and needs in resulting systems. Our methods were approved by a university Institutional Review Board (IRB).</p>
+        <p><strong>3.1 Participatory Action Research (PAR).</strong> PAR is an approach to embedding research in a community's real-world needs and concerns. To begin, a research team forges a close collaboration with a person or organization in a field of interest (the field partner). Throughout a study, the research team centers the questions most salient to the field partner, analyzes data with the partner, and works with the partner to decide next steps: an iterative and collaborative process known as the "action-reflection cycle."</p>
+        <p>Our team first met our field partner, a senior product manager working for a national news organization, for a conversation about how newsrooms can better assert intellectual property protections against data scraping from AI companies. Through these conversations, we noticed overlap in our goals: the researchers wanted to think through this complex set of problems as a case study in participatory AI, and our field partner wanted to refine institutional responses that could help the news industry navigate these challenges.</p>
+        <p>Our research goals evolved through the action-reflection cycle. Initially, we planned to create a working demo of a journalist-led LLM using newsroom partners' data. As we worked toward the prototype, we realized more research was needed to understand the macroeconomic factors constraining and incentivizing newsroom investment in AI, the inter-organizational considerations shaping how newsrooms regarded each other, and user-level opportunities and challenges for LLM tools. With our field partner, we set the following research questions: (RQ1 Macro) What are the market and structural factors that shape newsroom decision-making about AI? (RQ2 Meso) What are the organizational and technical requirements needed to enable the creation of a participatory design-created, newsroom-owned, and journalism-specific LLM? (RQ3 Micro) What new functionality might a participatory LLM enable in a journalist's day-to-day—and what material and affective demands would participation levy upon them in return?</p>
+        <p><strong>3.2 Semi-structured Interviews.</strong> We conducted 20 semi-structured interviews with reporters, data journalists, editors, labor organizers, product leads, and executives of news organizations, as well as leaders of nonprofits dedicated supporting news organizations. Our sampling strategy aimed to speak with those from both large organizations and small; online-only, newspapers, radio, and TV broadcast; varied ownership and revenue models; and different relationships to AI companies. Participants were recruited via email outreach to relevant professional networks. Interviews were 60 minutes long, and all participants were offered $50 Visa gift cards for completed interviews. Interviews were conducted online over Zoom and recorded for transcription.</p>
+        <p>Each interview had two parts. First, a descriptive section, which set out to understand the person's role and responsibilities, and how they currently used AI, if at all. Questions probed the participant's perspective on newsroom readiness to contribute data toward a hypothetical industry-controlled LLM: for example, participants were asked to describe how much of their archive is digitized, and in what formats.</p>
+        <p><strong>3.3 Participatory Design Methods.</strong> Part two of each interview drew on participatory design fiction, a form of artifact-based interviewing. In this method, researchers use artifacts (like low- or medium-fidelity technology prototypes or hypothetical specifications) as probes for eliciting knowledge from users that is otherwise challenging to access directly or in the abstract, such as ethical values and contextual considerations. To elicit the value proposition and organizational constraints that would shape their interest in a participatory LLM, we created a PDF inviting participants to join a would-be organization called the "Newsroom Tooling Alliance." Our probe included an invitation email and a 1-page proposal of an inter-organizational collaboration to create a journalism-specific LLM.</p>
+        <p>Participants were reminded that the invitation was not from an actual organization, but instead was a way to understand key contours of the context that such an initiative must address. Interviewers encouraged participants to be honest about the limits and fundamental barriers of the artifact. Following seminal work on navigating participant response bias in HCI, we were also attentive to power dynamics in this exchange. When interviewing more precarious workers, such as frontline reporters or editors, interviewers emphasized the value of their expertise and the team's interest in their views on the limits and problems with the proposal.</p>
+        <p><strong>3.4 Data Analysis.</strong> All interviews were recorded on Zoom and transcribed by Trint and Otter AI. Transcripts were cross-checked by a human researcher for accuracy. Data was analyzed using an iterative inductive qualitative coding approach based on grounded theory. Our initial code categories corresponded to our research questions: macro, for market-level factors shaping newsroom decision-making about AI; meso, for inter-organizational factors shaping newsrooms' decisions to partake in LLMs; and micro, for user-level needs and functionality that a journalism-specific LLM would enable. Through numerous discussions as a research team, we made iterative passes through the data to surface sub-categories in each of these areas, which we consolidated through additional passes to arrive at a final set of codes.</p>
+        <p>Our final set of codes and coded data resulted in desiderata for a participant-led LLM. However, some of our findings could not be fully resolved at the level of design specifications: instead, we came to understand them as "constitutive tensions": key frictions underlying the creation of a participatory LLM for journalism to which our own design must respond.</p>
+      </div>
+      <div class="lang-col zh"><span class="lang-label zh">中文</span>
+        <p>我们的工作采用了基于（i）参与式行动研究、（ii）半结构化访谈和（iii）协同设计的参与式方法。在AI和技术设计中，参与式方法为研究者提供了与受技术影响的社区更充分合作的原则和实践，并更好地在最终系统中反映他们的价值观、偏好和需求。我们的方法已获大学机构审查委员会（IRB）批准。</p>
+        <p><strong>3.1 参与式行动研究（PAR）。</strong>PAR是一种将研究嵌入社区真实需求和关注点的方法。首先，研究团队与感兴趣领域中的个人或组织（现场合作伙伴）建立密切合作。在研究中，研究团队以现场合作伙伴最关心的问题为中心，与合作伙伴一起分析数据，并共同决定下一步行动：这是一个被称为"行动-反思循环"的迭代协作过程。</p>
+        <p>我们的团队首先与我们的现场合作伙伴——一位服务于全国性新闻组织的高级产品经理——会面，讨论新闻编辑室如何更好地维护知识产权免受AI公司的数据抓取。通过这些对话，我们注意到目标的重叠：研究者希望将这一系列复杂问题作为参与式AI的案例研究进行思考，而我们的现场合作伙伴希望完善能够帮助新闻行业应对这些挑战的制度性应对措施。</p>
+        <p>我们的研究目标通过行动-反思循环逐步演变。最初，我们计划使用新闻编辑室合作伙伴的数据创建一个记者主导的LLM工作演示。在开发原型的过程中，我们意识到需要更多研究来理解制约和激励新闻编辑室投资AI的宏观经济因素、影响新闻编辑室相互看待方式的组织间考量、以及LLM工具在用户层面的机遇和挑战。我们与现场合作伙伴共同确定了以下研究问题：（RQ1 宏观）塑造新闻编辑室AI决策的市场和结构因素是什么？（RQ2 中观）创建一个参与式设计的、新闻编辑室拥有的、特定于新闻业的LLM需要哪些组织和技术要求？（RQ3 微观）参与式LLM可以在记者的日常工作中实现哪些新功能？参与又会给他们带来怎样的物质和情感要求？</p>
+        <p><strong>3.2 半结构化访谈。</strong>我们对记者、数据新闻工作者、编辑、劳工组织者、产品负责人和新闻机构高管以及致力于支持新闻组织的非营利组织领导者进行了20次半结构化访谈。我们的抽样策略旨在涵盖大型和小型组织、纯在线媒体、报纸、广播和电视广播、不同的所有权和收入模式、以及与AI公司不同的关系。参与者通过电子邮件联系相关专业网络进行招募。每次访谈时长60分钟，所有完成访谈的参与者均获得50美元Visa礼品卡。访谈通过Zoom在线进行并录音以供转录。</p>
+        <p>每次访谈分两部分进行。首先是描述性部分，旨在了解该人的角色和职责，以及他们目前如何使用AI（如果有的话）。问题探讨了参与者对新闻编辑室是否准备好为一个假设的行业控制的LLM贡献数据的看法：例如，参与者被要求描述他们的档案中有多少已经数字化，以及采用何种格式。</p>
+        <p><strong>3.3 参与式设计方法。</strong>每次访谈的第二部分借鉴了参与式设计虚构（participatory design fiction），一种基于人工制品的访谈形式。在这种方法中，研究者使用人工制品（如低或中保真技术原型或假设性规格说明）作为探针，引出用户难以直接或抽象获取的知识，如伦理价值和情境考量。为了引出影响他们对参与式LLM兴趣的价值主张和组织约束，我们创建了一个PDF，邀请参与者加入一个名为"新闻编辑室工具联盟"（NTA）的拟议组织。我们的探针包括一封邀请邮件和一页关于创建新闻业特定LLM的组织间协作提案。</p>
+        <p>参与者被告知，邀请并非来自实际组织，而是一种理解此类倡议必须解决的关键背景轮廓的方式。访谈者鼓励参与者坦诚对待人工制品的局限性和根本障碍。借鉴人机交互中处理参与者反应偏差的开创性工作，我们同样关注这一互动中的权力动态。在采访更不稳定的工作者（如一线记者或编辑）时，访谈者强调其专业知识价值以及团队对他们关于提案局限性和问题意见的兴趣。</p>
+        <p><strong>3.4 数据分析。</strong>所有访谈均在Zoom上录制，并由Trint和Otter AI转录。转录文本由一位人类研究者交叉核对以确保准确性。数据采用基于扎根理论的迭代归纳定性编码方法进行分析。我们的初始编码类别对应我们的研究问题：宏观层面，对应影响新闻编辑室AI决策的市场因素；中观层面，对应影响新闻编辑室参与LLM决策的组织间因素；微观层面，对应新闻业特定LLM将支持的用户级需求和功能。通过研究团队的多次讨论，我们对数据进行迭代式的通读，以揭示这些领域中的子类别，并通过额外的通读进行整合，最终形成一套编码。</p>
+        <p>我们的最终编码和编码数据产生了参与者主导LLM的需求规格。然而，我们的一些发现无法在设计规格层面完全解决：相反，我们将其理解为"构成性张力"——即创建新闻业参与式LLM所面临的关键摩擦，而我们的设计必须回应这些张力。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="content-card">
+  <div class="bilingual-block">
+    <div class="section-title">4. Tensions — Macro Level &middot; 张力分析——宏观层面</div>
+    <div class="bilingual-cols">
+      <div class="lang-col en"><span class="lang-label en">English</span>
+        <p>Our interviews and design methods revealed a complex set of tensions at the macro, meso, and micro levels that shape journalism as a design space for a participatory AI.</p>
+        <p><strong>4.1 Macro Tensions.</strong> Interviewees described intense pressures at the level of market dynamics, professional culture, and strategy. Participants described tensions around: (i) the push to create more content versus the reality of diminishing resources; (ii) the need to follow audience changes in how they consume information versus industry loss of control; (iii) the need for agility and novel competencies versus the traditional culture and norms of the profession; and (iv) the benefits of partnering with existing technology companies versus concerns of just compensation and fairness. Many described these centrifugal forces as pulling the industry in different directions, both toward and away from using AI, thus eliciting ambivalent or "competing thoughts" for those on-the-ground.</p>
+        <p><strong>4.1.1 The push to create more content versus diminishing resources.</strong> Participants reported tremendous pressure on newsrooms to make more content with diminishing resources. Many noted industry-wide nosedives in audiences and revenues, even as public appetite for content skyrockets. Local newsrooms struggle to make payroll and operate at a constant and acute risk of closing. Even as income streams fall, many of the costs to reporting and verifying information remain high. The industry was described as "bleeding money." These quotes reinforce the hard truth that reporting news is inherently resource-intensive, due to the work needed to collect novel information and fact-check it for accuracy.</p>
+        <p><strong>4.1.2 Following audience changes versus industry loss of control.</strong> Part of the margin-tightening is due to the industry losing its share of its audience, who are shifting news consumption habits more readily than the industry has adapted its business models. Several participants analogized the present shifts with AI companies to past experiences with social media platforms, during which newsrooms were subject to capricious changes in how newsfeed algorithms worked—dramatically changing news industry revenues overnight. As P13 recalled: "Facebook gave [newsrooms] a ton of traffic for free for a long time and then suddenly changed direction. It is very possible that OpenAI and these other platforms will do the same thing." These past experiences underscored an overall desire for greater industry self-determination, including payment structures that benefit newsrooms and restore their control.</p>
+        <p><strong>4.1.3 Agility and novel competencies versus traditional culture.</strong> Many participants noted that the technical competencies and appetite for innovation needed to adopt AI contrasted sharply against the timeworn traditional culture of the journalistic profession. One respondent described the past cultural norm as "Don't offend anybody, don't break anything"—innovation was punished. While larger news conglomerates have technology roles, the long tail of smaller newsrooms often lacked in-house technical personnel and resources to "to fully tap into [new technologies] and don't even know where to get started." At the same time, all respondents acknowledged the need for the industry to adapt: "AI is inevitable, so it makes sense to get ahead of it or to use it in a way that is not extractive to the industry."</p>
+        <p><strong>4.1.4 Partnering with tech companies versus just compensation.</strong> Respondents described the industry as facing a difficult decision. On the one hand, they noted many benefits of relying on AI companies' payments through licensing agreements. On the other, many described a deep sense of offense at how AI companies have been able to monetize work they did not do or pay for. As P05 said: "I'll be honest that it's also just my own strong sense of justice. I get really pissed off when people steal from us." Many participants expressed this sense of powerlessness. Part of participants' frustrations were due to larger newsrooms beginning to explore licensing agreements with OpenAI—News Corp, Condé Nast, Vox Media, and Axios have all signed agreements. Smaller newsrooms are being solicited primarily as users of commercial products rather than licensing partners. Interviewees who had concerns about corporate dominance were more supportive of a participatory, journalist-led LLM.</p>
+      </div>
+      <div class="lang-col zh"><span class="lang-label zh">中文</span>
+        <p>我们的访谈和设计方法揭示了塑造新闻业作为参与式AI设计空间的宏观、中观和微观层面的一系列复杂张力。</p>
+        <p><strong>4.1 宏观张力。</strong>受访者描述了市场动态、职业文化和战略层面的巨大压力。参与者描述的张力包括：（i）创造更多内容的压力与资源减少的现实；（ii）跟随受众信息消费方式的变化与行业失去控制权；（iii）需要敏捷性和新型能力与传统的职业文化和规范；以及（iv）与现有科技公司合作的好处与对公平报酬的担忧。许多人将这些离心力描述为将行业拉向不同方向——既趋向又远离使用AI——从而引发一线从业者的矛盾或"竞争性想法"。</p>
+        <p><strong>4.1.1 创造更多内容与资源减少。</strong>参与者报告说，新闻编辑室面临着用更少资源制作更多内容的巨大压力。许多人指出，尽管公众对内容的需求激增，但受众和收入却呈行业性下降。地方新闻编辑室难以支付工资，处于持续且严峻的关闭风险中。即使收入来源下降，报道和核实信息的许多成本仍然很高。该行业被描述为"在流血"。这些引述强化了一个严酷的事实：新闻报道本质上是资源密集型的，因为需要收集新颖信息并核实其准确性。</p>
+        <p><strong>4.1.2 跟随受众变化与行业失去控制权。</strong>利润收紧的部分原因是该行业正在失去其受众份额，受众改变新闻消费习惯的速度快于该行业调整其商业模式的速度。几位参与者将当前与AI公司的转变类比为过去与社交媒体平台的经验，当时新闻编辑室受到新闻推送算法变化无常的影响——一夜之间戏剧性地改变了新闻行业的收入。正如P13回忆的："Facebook曾长期免费给新闻编辑室带来大量流量，然后突然改变了方向。OpenAI和其他平台很可能会做同样的事情。"这些过去的经验凸显了行业对更大自主权的渴望，包括使新闻编辑室受益并恢复其控制权的支付结构。</p>
+        <p><strong>4.1.3 敏捷性与新型能力vs传统文化。</strong>许多参与者指出，采用AI所需的技术能力和创新欲望与新闻职业的古老传统文化形成鲜明对比。一位受访者将过去的文化规范描述为"不要冒犯任何人，不要破坏任何东西"——创新会受到惩罚。虽然大型新闻集团拥有技术角色，但长尾的小型新闻编辑室往往缺乏内部技术人员和资源来"充分挖掘新技术的潜力，甚至不知道从何入手"。与此同时，所有受访者都承认行业需要适应："AI是不可避免的，所以领先一步或者以一种对行业非榨取性的方式使用它是有意义的。"</p>
+        <p><strong>4.1.4 与科技公司合作vs公平报酬。</strong>受访者描述该行业面临着一个艰难的决定。一方面，他们注意到通过许可协议依赖AI公司支付的许多好处。另一方面，许多人对AI公司能够将他们未做或未付费的工作货币化深感不满。正如P05所说："老实说，这也是我自己强烈的正义感。当有人从我们这里偷东西时，我真的非常生气。"许多参与者表达了这种无力感。参与者沮丧的部分原因是较大的新闻编辑室开始探索与OpenAI的许可协议——新闻集团、康泰纳仕、Vox Media和Axios都已签署协议。较小的新闻编辑室主要被作为商业产品的用户而非许可合作伙伴来接触。对企业主导地位有担忧的受访者更支持参与式的、记者主导的LLM。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="content-card">
+  <div class="bilingual-block">
+    <div class="section-title">4.2 Meso Tensions &middot; 中观张力</div>
+    <div class="bilingual-cols">
+      <div class="lang-col en"><span class="lang-label en">English</span>
+        <p>Given the structural tensions, how might news organizations at different sizes and localities cooperate toward a collectively owned LLM? We find that to create conditions for inter-organizational collaboration, a participatory LLM must address sensitivities around (i) mutual benefit versus competition with rivals, (ii) data pooling versus data protection, (iii) enabling versus constraining novel uses, and (iv) collective action versus local control.</p>
+        <p><strong>4.2.1 Mutual benefit versus competition with rivals.</strong> Participants voiced enthusiasm for some form of cooperation between news organizations as part of an industry response to market pressures. However, participants at larger organizations noted barriers of "competitive defensiveness," where "everyone is trying to figure out how to do AI better than their immediate competitors." At the same time, many observed cooperation could help save the long tail of smaller and more local newsrooms by providing access to costly technical resources they would otherwise lack. As P16 noted, helping smaller publishers adapt to AI "would be incredibly exciting to anybody who watches the industry, and cares about democracy and the country and the world."</p>
+        <p><strong>4.2.2 Data pooling versus data protection.</strong> Data rights were a particularly thorny flashpoint for tensions around cooperation and competition. Attuned to issues around ownership of news and copyright of journalistic work, many nevertheless saw benefits to sharing work product through data pooling toward a participatory LLM, especially for "stitching together geographies from a local perspective" (P16). Participants sought guarantees on how organizations or freelancers could get credit and proportional revenue share for contributions. Many identified a precedent in how journalists collaborate on investigative reporting by pooling documents. P01 recalled: "the general rule is, if you're worried that if someone else sees it, you're going to be in trouble, you just don't put it in any database." Time-worn social and technical protocols could be adapted to pool data for a participatory LLM.</p>
+        <p><strong>4.2.3 Enabling versus constraining novel uses.</strong> Participants saw practical and philosophical tensions in how participating news organizations could agree on use cases. If one participating newsroom supported one use case from a jointly created participatory LLM, and another vehemently opposed it, how should the collective proceed? One axis of disagreement was the divide between maximizing journalists' efficiency and creating new and innovative uses. P03 noted: "You might have a well-equipped newsroom think about using [AI] in creative new ways, versus a newsroom that's vastly under-resourced and would rather spend time on shortcuts for rote tasks." Smaller and independent newsrooms were seen as leading the charge toward novel uses out of "real appetite, real innovation, and real openness," while larger newsrooms were likely to be stymied by institutional bureaucracy.</p>
+        <p><strong>4.2.4 Collective action versus local control.</strong> Many participants said the entity who would lead a participatory LLM would have a large bearing on how it is received. The alliance would be maximally trustworthy if led by people with actual journalism experience. Questions included whether voting rights would be allocated evenly or in proportion to the size of member organizations; where freelancers would fit in; and how funding would influence the broader project. Crucially, the leadership would need to carefully manage the project's relationship to labor organizing, negotiating not only with management but also representatives of workers. Finally, the initiative would need to manage how member organizations worked with corporate tech actors. As P06 described: "[Is a participatory LLM project] going to have the funding to pay us what OpenAI would pay for that same data?" Maintaining long-term cooperation would require clear benefits and accountability structures.</p>
+      </div>
+      <div class="lang-col zh"><span class="lang-label zh">中文</span>
+        <p>考虑到结构性张力，不同规模和地区的新闻组织如何围绕一个集体拥有的LLM进行合作？我们发现，为了创造组织间协作的条件，参与式LLM必须解决以下敏感问题：（i）互惠互利与竞争对手之间的竞争；（ii）数据汇集与数据保护；（iii）支持与限制新颖用途；（iv）集体行动与地方控制。</p>
+        <p><strong>4.2.1 互惠互利vs与对手竞争。</strong>参与者对新闻组织之间某种形式的合作表示热情，将其视为行业应对市场压力的一部分。然而，大型组织的参与者指出了"竞争防御性"的障碍——"每个人都试图弄清楚如何比直接竞争对手更好地使用AI。"与此同时，许多人观察到合作可以通过提供昂贵的技术资源来帮助拯救长尾的小型和本地新闻编辑室。正如P16所说，帮助小型出版商适应AI"对于任何关注这个行业、关心民主、国家和世界的人来说，都会是极其令人兴奋的。"</p>
+        <p><strong>4.2.2 数据汇集vs数据保护。</strong>数据权是围绕合作与竞争的特别棘手的冲突点。尽管许多人对新闻所有权和新闻作品版权问题高度敏感，但他们仍然看到了通过数据汇集向参与式LLM共享工作产品的好处——特别是"从本地视角拼接地理信息"（P16）。参与者寻求关于组织或自由职业者如何为其贡献获得信用和按比例收入份额的保证。许多人以记者在调查性报道中通过汇集文档进行合作为先例。P01回忆道："一般规则是，如果你担心别人看到会有麻烦，就不要把它放进任何数据库。尽可能把它锁起来。"成熟的社会和技术协议可以适用于为参与式LLM汇集数据。</p>
+        <p><strong>4.2.3 支持vs限制新颖用途。</strong>参与者在参与新闻组织如何就用例达成一致方面看到了实践和哲学上的张力。如果一个参与的新闻编辑室支持某个从联合创建的参与式LLM中产生的用例，而另一个强烈反对，集体应该如何推进？分歧的一个轴心在于最大化记者效率与创造新的创新用途之间的鸿沟。P03指出："一个装备精良的新闻编辑室可能会考虑以创造性新方式使用AI，而一个资源严重不足的新闻编辑室更愿意花时间在日常任务的捷径上。"小型和独立新闻编辑室被认为将出于"真正的渴望、真正的创新和真正的开放"率先走向新颖用途，而大型新闻编辑室则可能被机构官僚主义所阻碍。</p>
+        <p><strong>4.2.4 集体行动vs地方控制。</strong>许多参与者表示，领导参与式LLM的实体将对其接受程度产生重大影响。如果由具有实际新闻经验的人领导，该联盟将获得最大程度的信任。问题包括投票权是按成员组织的规模均等分配还是按比例分配；自由职业者如何参与；以及资金如何影响更广泛的项目。至关重要的是，领导层需要谨慎管理项目与劳工组织的关系，不仅与管理层谈判，还要与工人代表谈判。最后，该倡议还需要管理成员组织如何与企业科技行为者合作。正如P06所述："[参与式LLM项目]是否有资金来支付OpenAI会为同样数据支付的金额？"维持长期合作需要明确的利益和问责结构。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="content-card">
+  <div class="bilingual-block">
+    <div class="section-title">4.3 Micro Tensions &middot; 微观张力</div>
+    <div class="bilingual-cols">
+      <div class="lang-col en"><span class="lang-label en">English</span>
+        <p>Our research identified tensions in how a participatory LLM would influence the day-to-day work of individual journalists and editors. These tensions include (i) whether existing commercial LLMs are adequate versus the need for a participatory LLM, (ii) how to realize efficiency versus preserve the human element of newswork, and (iii) expanding versus exceeding or replacing existing labor capacity.</p>
+        <p><strong>4.3.1 Commercial LLM adequacy versus the need for a participatory LLM.</strong> Participants listed many use cases that would make LLMs valuable to their workflows, many converging with needs assessed in previous work. Many were excited about the potential to speed and democratize access to data journalism, like projects to dig through municipal records or generate interactive charts. Other potential uses included support for rote tasks like data scraping and processing; optimizing headlines; flagging articles for fact-checking; searching archives; and supporting the reporting process. However, these ideas invited deeper questions about the fitness of existing commercial LLMs versus the additional benefits of a journalist-controlled LLM. While some participants already used commercial LLMs for tools like transcription and headline suggestions, many newsrooms have policies against sharing information with commercial models due to concerns about "leaking out our copyrighted material to models that are being trained on it" (P03)—indicating that while commercial models seem to meet needs, many newsrooms are wary of disclosing proprietary data.</p>
+        <p><strong>4.3.2 Efficiency versus preserving the human element.</strong> Journalists described ways adapting LLMs could help them become more efficient, reducing burdens on their time. As P01 framed it: "How do we start to claw back the time so we can use the highest and best use of our brains to do the things that really matter?" Many wanted to recover time for the necessarily human aspects of journalism: sourcing, showing up to civic meetings, and being present in their communities. At the same time, interviewees expressed concerns about what can be lost when newsrooms come to rely on automation. The idea of using AI to fully automate content creation was particularly stirring. P10 said: "The spirit of the storytelling is not there if you're just using it to do everything for you." Participants' desire for human voices reflected an appreciation for complexity, contradiction, and human nuance—qualities that any newswriting pipeline must center.</p>
+        <p><strong>4.3.2 Expanding versus replacing existing labor capacity.</strong> Respondents were amenable to how a participatory LLM could expand their knowledge and skills, even if this would create new job tasks. Many felt the incentives of a cooperative structure could overcome resistance to new work, and ultimately lower barriers to adoption: "we're not giving you a bunch of happy talk, we're actually giving you an ownership stake in the work that you're producing" (P09). However, participants had concerns about how automation could risk displacing their labor. Journalists are already very constrained in time and resources; the introduction of automation has a history of encouraging elimination of jobs instead of augmenting work. As P09 said: "There's two dominant emotions [around AI], suspicion and fear. You say this is R2-D2, but it's actually the Terminator." This concern was present even for use cases that seemed ripe for automation. Respondents agreed that any LLM, however participatory, would need to stick to use cases that supported journalists' work and be governed to avoid replacing them.</p>
+      </div>
+      <div class="lang-col zh"><span class="lang-label zh">中文</span>
+        <p>我们的研究识别了参与式LLM将如何影响个体记者和编辑日常工作的张力。这些张力包括：（i）现有商业LLM是否足够vs对参与式LLM的需求；（ii）如何实现效率vs保留新闻工作的人性元素；（iii）扩大vs超过或取代现有劳动力能力。</p>
+        <p><strong>4.3.1 商业LLM的充分性vs参与式LLM的需求。</strong>参与者列举了许多使LLM对其工作流程有价值的用例，许多与先前工作中评估的需求相吻合。许多人对加速和民主化数据新闻获取——如挖掘市政记录或生成交互式图表的项目——的潜力感到兴奋。其他潜在用途包括支持数据抓取和处理等机械性任务；优化标题；标记需要事实核查的文章；搜索档案；以及支持报道过程。然而，这些想法引发了关于现有商业LLM的适用性与记者控制LLM额外好处之间更深层次的问题。虽然一些参与者已经在使用商业LLM进行转录和标题建议等工具，但许多新闻编辑室由于担心"将我们的版权材料泄露给正在利用这些材料进行训练的模型"而制定了禁止与商业模型共享信息的政策（P03）——这表明虽然商业模型似乎满足了需求，但许多新闻编辑室对披露专有数据持谨慎态度。</p>
+        <p><strong>4.3.2 效率vs保留人性元素。</strong>记者描述了调整LLM以适应其工作流程如何帮助他们提高效率，减轻时间负担。正如P01所言："我们如何开始夺回时间，以便我们可以用我们大脑最高和最好的用途来做真正重要的事情？"许多人希望将时间回收用于新闻业必然的人性化方面：寻找来源、出席公民会议、在社区中保持存在。与此同时，受访者表达了对新闻编辑室依赖自动化可能失去什么的担忧。使用AI完全自动化内容创作的想法尤其令人不安。P10说："如果你只用它来做所有事情，讲故事的精神就不存在了。"参与者对人类声音的渴望反映了对复杂性、矛盾性和人类细微差别的欣赏——这是任何新闻写作流程都必须重视的品质。</p>
+        <p><strong>4.3.3 扩大vs取代现有劳动力能力。</strong>受访者对参与式LLM可以扩展他们知识和技能的方式持开放态度，即使这会创造新的工作任务。许多人认为合作结构的激励可以克服对新工作的阻力，并最终降低采用技术的障碍："我们不是在给你们一堆空话，我们实际上在给你们所生产工作的所有权股份"（P09）。然而，参与者对自动化可能取代其劳动的风险表示担忧。记者在时间和资源上已经受到很大限制；引入自动化有着鼓励消除工作岗位而非增强工作的历史。正如P09所说："[围绕AI]有两种主导情绪，猜疑和恐惧。你说这是R2-D2，但它实际上是终结者。"这种担忧甚至存在于看起来适合自动化的用例中。受访者一致认为，任何LLM——无论多么参与式——都需要坚持支持记者工作的用例，并通过治理避免取代他们。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="content-card">
+  <div class="bilingual-block">
+    <div class="section-title">5. Co-Design Result: The Newsroom Tooling Alliance (NTA) &middot; 协同设计成果：新闻编辑室工具联盟</div>
+    <div class="bilingual-cols">
+      <div class="lang-col en"><span class="lang-label en">English</span>
+        <p>Responding to the tensions described above, we present the results of our co-designed proposal for a journalism-specific LLM. First, a cooperative of member news organizations would work to create, steward, maintain, and promote a journalist-controlled LLM—what we have dubbed through our co-design work the Newsroom Tooling Alliance (NTA).</p>
+        <p><strong>Structure.</strong> NTA members commit to contributing some of their work product to a collective pool of data, under terms governed by a common data use agreement. NTA would be responsible for supporting the costs associated with data intake through grant funds; there would be no cost of contribution to the members. Members have the right to include or exclude data at their discretion, e.g., to exclude reporters' notes but include their historical archives. The amount and quality of data contributed is used to prorate an individual member's revenue-share, to incentivize members to share more data. Data provenance is carefully traced to facilitate members' ability to remove their data from the pool.</p>
+        <p><strong>Functionality.</strong> NTA staff data scientists would use the pooled data to fine-tune the most transparent and consentful open-source LLM available (or to experiment with creating a de novo LLM) in order to develop applications for journalistic tasks. One crucial piece of NTA membership is the ability and responsibility to vote on what use cases their data will be used for. NTA staff implement these applications and set up structures for members to help maintain them by evaluating their performance against holistic criteria—for example, auditing generated text for correctness, bias, and depth of coverage. This focus on participation in both design and governance ensures NTA products have a value-add over what could be developed without its journalist-led structure.</p>
+        <p><strong>Governance.</strong> NTA members are billed for their usage of NTA tools at cost. Long-term, the NTA would also explore other revenue models, such as licensing access to newsroom data or releasing NTA products to non-members. One near-term priority would be to raise money for legal fees, in order to support members who might want to protect their intellectual property from companies appropriating their data through unlicensed scraping. NTA would also ensure its agreements with members are non-exclusive, so that members may partner with other LLM companies if necessary. The NTA would be led by a steering committee comprised of people working in journalism, charged with intentionally representing the interests of larger news conglomerates, smaller independent organizations, and freelancers. The exact charter of the committee (term limits, voting mechanisms, accountability) would be decided cooperatively by NTA's founding members and revisited regularly. The NTA would also commit to transparency and accountability as to its own funding.</p>
+        <p><strong>Education.</strong> Lastly, the NTA is designed to champion not only the core activities of creating and maintaining an LLM and journalism-specific applications, but also educational and community-building work around AI and journalism. This includes connecting members to each other to commiserate on common challenges and answer questions, and stewarding resources for the general public on how LLMs and AI work.</p>
+      </div>
+      <div class="lang-col zh"><span class="lang-label zh">中文</span>
+        <p>回应上述张力，我们展示了为新闻业特定LLM设计的协同设计方案成果。首先，一个由成员新闻组织组成的合作社将致力于创建、管理、维护和推广一个由记者控制的LLM——我们通过协同设计工作将其命名为"新闻编辑室工具联盟"（NTA）。</p>
+        <p><strong>结构。</strong>NTA成员承诺将部分工作产品贡献给集体数据池，受共同数据使用协议的条款约束。NTA将负责通过资助资金支持数据录入的相关成本；成员无需承担贡献成本。成员有权自行决定包含或排除哪些数据，例如排除记者笔记但包含历史档案。贡献数据的数量和质量将用于按比例计算个别成员的收入分成，以激励成员分享更多数据。数据溯源将被仔细追踪，以便成员能够从数据池中移除其数据。</p>
+        <p><strong>功能。</strong>NTA的数据科学家将使用汇集的数据微调最透明且获得同意的开源LLM（或尝试从头创建LLM），以开发用于新闻任务的应用程序。NTA成员资格的一个关键部分是投票决定其数据用于哪些用例的能力和责任。NTA员工实施这些应用程序，并建立机制让成员通过根据整体标准评估其性能来帮助维护应用程序——例如审计生成的文本的正确性、偏见和报道深度。这种对设计和治理参与的关注确保了NTA产品具有超越无记者主导结构的增值价值。</p>
+        <p><strong>治理。</strong>NTA成员按成本价支付NTA工具的使用费用。长期来看，NTA还将探索其他收入模式，如许可新闻编辑室数据访问权或向非成员发布NTA产品。近期的一个优先事项是筹集法律费用资金，以支持成员保护其知识产权免受公司通过无许可抓取侵占其数据。NTA还将确保其与成员的协议是非排他性的，以便成员在必要时可以与其他LLM公司合作。NTA将由一个由新闻从业者组成的指导委员会领导，负责有意识地代表大型新闻集团、小型独立组织和自由职业者的利益。委员会的具体章程（任期限制、投票机制、问责制）将由NTA创始成员通过合作方式决定，并定期重新审视。NTA还将承诺其自身资金的透明度和问责制。</p>
+        <p><strong>教育。</strong>最后，NTA不仅致力于创建和维护LLM及新闻业特定应用程序的核心活动，还致力于围绕AI和新闻业开展教育和社区建设工作。这包括将成员联系起来共同面对常见挑战并解答问题，以及为公众管理关于LLM和AI如何工作的资源。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="content-card">
+  <div class="bilingual-block">
+    <div class="section-title">6. Discussion &middot; 讨论</div>
+    <div class="bilingual-cols">
+      <div class="lang-col en"><span class="lang-label en">English</span>
+        <p>We have mapped journalists' needs as a design space for a participatory LLM, and presented the result of our co-design: a proposal for a journalism-specific LLM collective. Here, we draw out the implications for this moment in journalism and AI, and for FAccT.</p>
+        <p><strong>6.1 On the limits of relying on commercial foundation models for journalism.</strong> Our findings show that journalists are not uninterested in LLMs' capabilities; they are instead wary specifically of relying too much on commercial LLMs like ChatGPT. Past experiences of unpredictability from big tech partners, a sense of unfairness, and a desire for greater control over monetization and newsroom-facing functionality all disincline some newsrooms from relying too heavily on corporate LLMs. Even newsrooms who do opt to partner with AI companies expressed ambivalence. P13, whose organization receives money and enterprise accounts from OpenAI, nevertheless said her organization is "trying to not get them hooked" on the tool—invoking the same language used for addiction. Journalists' ambivalence mirrors what Higgins-Dobney noted in 2021—that technology imposed "from the outside" can lead its intended users towards alienation and disempowerment.</p>
+        <p>Ultimately, our investigation points to the overall value of trusted alternatives to dominant commercial LLMs. A participatory LLM initiative will give newsrooms more control over how their data is used and monetized, power over what functionality is prioritized, and assurance that they are not subject to the capricious decisions of an external partner. Our findings suggest there are other salient factors for newsrooms choosing which LLM to use, beyond quantifiable task performance: trust, predictability, financial remuneration and a sense of justice. There is also the possibility that a journalist-controlled LLM, fine-tuned specifically for journalist-defined tasks and evaluated holistically by journalists, may actually outperform out-of-the-box LLMs on the functions that matter. Following Suresh et al., this finding invites investigation in other fields being rapidly mediated by foundation models, like finance and healthcare.</p>
+        <p><strong>6.2 Applying participatory methods to LLMs.</strong> Our contributions are also methodological: we illustrate a worked example of Suresh et al.'s call for applying participatory methods to LLMs. Our approach anchored with a partner organization using PAR, interviewed people from a range of roles, and co-designed a resulting sociotechnical system with them. By allowing participants more ownership over the process, we moved toward what Delgado et al. and Suresh et al. describe as more meaningful forms of participation. Our approach also allowed us to take a technical topic (LLMs) and engage with domain experts from a range of levels of familiarity with AI, to ensure our focus remained on real-world constraints rather than technical imaginaries.</p>
+        <p>Allowing participants more ownership over the co-design process helped us realize more holistic and fundamental desiderata, upstream of performance on defined tasks. Participants were very concerned with organizational arrangements around the LLM proposal: how participation should be structured, on what terms, and to produce what value. From this, we argue participatory approaches toward LLMs provide three core benefits: (i) the ability to conduct holistic and highly contextual evaluations, incentivized by giving domain experts an ownership stake; (ii) improved coverage of diverse perspectives via responsible data sharing; and (iii) education and capacity-building. Each of these goals may seem orthogonal to traditional performance metrics, but our work shows they are essential to realize the full potential of these systems—and achievable most clearly through participatory approaches.</p>
+        <p><strong>6.3 Limitations.</strong> This study provides the basis for an ongoing stream of work, in which we follow community interest toward developing a working prototype. However, our work was also limited; our investigation was qualitative and did not make use of technical artifacts (such as a working prototype of a system) to which participants could respond. Complementary work could explore alternative elicitation and design methods to better understand users' needs in practice.</p>
+      </div>
+      <div class="lang-col zh"><span class="lang-label zh">中文</span>
+        <p>我们已经将记者的需求映射为参与式LLM的设计空间，并展示了协同设计的成果：一个新闻业特定LLM集体的提案。在此，我们提炼出这些贡献对当下新闻业与AI交汇时刻以及FAccT社区的启示。</p>
+        <p><strong>6.1 关于依赖商业基础模型用于新闻业的局限性。</strong>我们的发现表明，记者并非对LLM的能力不感兴趣；他们特别警惕的是过度依赖ChatGPT等商业LLM。过去与大型科技伙伴合作中不可预测性的经历、不公平感以及希望对货币化和新闻编辑室功能拥有更大控制权的渴望，都使一些新闻编辑室不愿过度依赖企业LLM。即使选择与AI公司合作的新闻编辑室也表达了矛盾心理。P13的组织接收OpenAI的资金和企业账户，但她表示自己的组织"正试图不让[记者]上瘾"于该工具——使用了描述成瘾的语言。记者的矛盾态度印证了Higgins-Dobney在2021年的观察——"从外部"施加的技术可能导致其目标用户走向疏离和失权。</p>
+        <p>最终，我们的研究指向了值得信赖的主流商业LLM替代方案的整体价值。参与式LLM倡议将使新闻编辑室对其数据的使用和货币化方式拥有更多控制权，对功能开发优先级拥有权力，并确保他们不受外部合作伙伴变化无常决策的影响。我们的发现表明，新闻编辑室在选择使用哪种LLM时，除了可量化的任务性能外，还有其他重要因素：信任、可预测性、财务报酬和正义感。还有一种可能性是，一个专门为记者定义的任务进行微调并由记者全面评估的记者控制LLM，可能在重要功能上实际超越现成的LLM。借鉴Suresh等人的观点，这一发现为在金融、医疗等正在被基础模型快速中介的其他领域研究同样的问题提供了机会。</p>
+        <p><strong>6.2 将参与式方法应用于LLM。</strong>我们的贡献也是方法论的：我们展示了一个将参与式方法应用于LLM的工作示例，回应了Suresh等人的呼吁。我们的方法通过PAR与合作伙伴组织锚定，采访了不同角色的人，并与他们共同设计了最终的社会技术系统。通过允许参与者对过程拥有更多所有权，我们朝着Delgado等人和Suresh等人所描述的更有意义的参与形式迈进。我们的方法还使我们能够处理一个技术性话题（LLM），并与对AI熟悉程度不同的领域专家互动，确保我们的关注点始终是现实世界的约束而非技术想象。</p>
+        <p>允许参与者对协同设计过程拥有更多所有权，帮助我们实现了定义任务性能上游的更全面和根本的需求。参与者非常关注围绕LLM提案的组织安排：参与应该如何构建、以什么条款进行以及产生什么价值。由此，我们认为参与式LLM方法提供了三个核心益处：（i）通过给予领域专家所有权股份来激励全面且高度情境化的评估能力；（ii）通过负责任的数据共享改进多样化视角的覆盖范围；（iii）教育和能力建设。这些目标中的每一个可能看起来与传统的性能指标正交，但我们的工作表明，它们对于实现这些系统的全部潜力至关重要——而通过参与式方法最能清晰地实现这些目标。</p>
+        <p><strong>6.3 局限性。</strong>本研究为正在进行的一系列工作提供了基础，我们将跟随社区兴趣开发工作原型。然而，我们的工作也存在局限；我们的研究是定性的，没有使用参与者可以回应的技术制品（如系统的工作原型）。补充性工作可以探索替代性的启发和设计方法，以更好地在实践中理解用户需求。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="content-card">
+  <div class="bilingual-block">
+    <div class="section-title">7. Conclusion &middot; 结论</div>
+    <div class="bilingual-cols">
+      <div class="lang-col en"><span class="lang-label en">English</span>
+        <p>In a moment when AI companies have ingested vast amounts of news data, and now are being sued by—or are partnering with—newsrooms, the news industry has become an important site for understanding the uses and impacts of LLMs in the workplace. In this work, we drew on participatory methods to holistically understand the news industry as a design space, and explore the potential of a journalist-led and -controlled LLM. Our 20 interviews with news practitioners reveal enabling and constraining conditions for newsrooms to collaborate on co-designing, governing, and maintaining their own LLM. We characterize the key macro, meso, and micro tensions animating newsroom decision-making about AI, and present a co-designed specification for a participatory LLM that takes these tensions into account: a brief for what we call the Newsroom Tooling Alliance. Finally, we argue that today's commercial foundation models are ill-suited to the needs of modern journalism; and that participatory approaches to LLMs are needed to complement traditional evaluation metrics with the organizational and humanistic desiderata to meet real-world needs.</p>
+      </div>
+      <div class="lang-col zh"><span class="lang-label zh">中文</span>
+        <p>在AI公司已经摄取大量新闻数据，并正在被新闻编辑室起诉或与之合作的时代，新闻业已成为理解LLM在工作场所中的用途和影响的重要场域。在这项工作中，我们借鉴参与式方法全面理解新闻业作为一个设计空间，并探索由记者主导和控制的LLM的潜力。我们对20位新闻从业者的访谈揭示了新闻编辑室在协同设计、治理和维护自己的LLM方面进行合作的支持条件和制约条件。我们描述了激发新闻编辑室AI决策的关键宏观、中观和微观张力，并提出了一个考虑这些张力的参与式LLM协同设计规格说明：即我们称之为"新闻编辑室工具联盟"（NTA）的概要方案。最后，我们认为当今的商业基础模型不适合现代新闻业的需求；需要用参与式LLM方法以组织和人本需求补充传统评估指标，从而满足现实世界的需求。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="content-card">
+  <div class="bilingual-block">
+    <div class="section-title">Appendix: Co-Design Artifact &middot; 附录：协同设计人工制品</div>
+    <div class="bilingual-cols">
+      <div class="lang-col en"><span class="lang-label en">English</span>
+        <p>Our co-design method elicited participants' reflections by first presenting an artifact for them to react to (full description in 3.3). Our artifact was a PDF depicting a hypothetical recruitment email and one-pager describing a Newsroom Tooling Alliance. This is the text of that PDF.</p>
+        <p><em>Subject: Invitation to share your newsroom's use and perspective on AI</em></p>
+        <p>Dear Newsroom Leader,</p>
+        <p>The news industry is undergoing a period of rapid disruption with artificial intelligence, where large technology companies have scraped and monetized newsrooms' intellectual property at scale. Legal challenges to this new reality are unfolding at a glacial pace. The Newsroom Tooling Alliance (NTA) has begun an ambitious effort to lay the groundwork to create a journalist-controlled large language model.</p>
+        <p>We are a team of researchers that is interested in learning more from you about how your newsroom is seeing this digital disruption and how you might play an active role in controlling your own data and outcomes when using artificial intelligence. Do you have 45 minutes in the next two weeks to discuss this initiative? The call will be recorded for research purposes.</p>
+        <p>Sincerely, XYZ</p>
+        <p><em>The Newsroom Tooling Alliance (NTA) — Executive Summary</em></p>
+        <p>The Newsroom Tooling Alliance is a coalition of news organizations that has entered into an agreement for the purpose of creating and sustaining a news industry-controlled large language model (LLM). Each organization in the Alliance has contributed their dataset to the archive, maintaining their copyright, under a data-use agreement. A staff of data scientists use these datasets to build and maintain a state-of-the-art large language model and custom tooling, and provide access to each participating news organization, which is billed for usage at cost. Our LLM-powered tooling ensures that journalists are at the center of deciding how this technology will be used, and that their intellectual property is protected. Tools built on our repository and model support reporting, attribution, archival search, fact-checking, and more. Long term, the Alliance will also explore other revenue models, such as licensing access to newsroom data, and support legal fees to cases challenging large tech companies who have appropriated this data through unlicensed scraping.</p>
+        <p><em>Terms of Participation</em></p>
+        <p>Participation includes data contribution, member access to tooling, and representation on joint governance boards and working groups. To participate in the Alliance, organizations sign a data-sharing agreement and separate data-use agreement that supports the creation of our shared LLM and tooling.</p>
+        <p>• NTA has foundation funding to support the costs associated with data intake; there is no cost to contribute data.</p>
+        <p>• Use of the LLM will be billed at cost for upload and download time, without the additional charges billed by companies like ChatGPT to use its tooling.</p>
+        <p>• Revenues to the NTA will go toward the development and maintenance of newsroom-centered tooling and legal fees to protect members' IP against unlicensed uses of their work.</p>
+        <p>• A steering committee composed of representatives from each member organization will explore other revenue streams long-term.</p>
+      </div>
+      <div class="lang-col zh"><span class="lang-label zh">中文</span>
+        <p>我们的协同设计方法通过首先呈现一个供参与者反应的人工制品来引出参与者的反思（详见3.3节）。该人工制品是一个PDF，描绘了一封假设性的招募邮件和一页描述"新闻编辑室工具联盟"的简介。以下是该PDF的文本内容。</p>
+        <p><em>主题：邀请您分享贵新闻编辑室对AI的使用和看法</em></p>
+        <p>尊敬的新闻编辑室负责人：</p>
+        <p>新闻行业正经历AI带来的快速颠覆期，大型科技公司大规模抓取新闻编辑室的知识产权并将其货币化。对这种新现实的法律挑战进展缓慢。新闻编辑室工具联盟（NTA）已开始一项雄心勃勃的努力，为创建一个由记者控制的大语言模型奠定基础。</p>
+        <p>我们是一个研究团队，有兴趣进一步了解您的新闻编辑室如何看待这种数字颠覆，以及您如何在使用人工智能时在控制自己的数据和结果方面发挥积极作用。您是否可以在未来两周内抽出45分钟讨论这一倡议？通话将出于研究目的进行录音。</p>
+        <p>此致，XYZ</p>
+        <p><em>新闻编辑室工具联盟（NTA）——执行摘要</em></p>
+        <p>新闻编辑室工具联盟是一个新闻组织联盟，已达成协议创建和维持一个新闻行业控制的大语言模型（LLM）。联盟中的每个组织根据数据使用协议贡献其数据集到档案库，同时保留其版权。数据科学家团队使用这些数据集构建和维护最先进的大语言模型和定制工具，并为每个参与新闻组织提供按成本计费的使用权限。我们的LLM驱动工具确保记者处于决定如何使用这项技术的中心位置，并确保他们的知识产权得到保护。基于我们的存储库和模型构建的工具支持报道、归因、档案搜索、事实核查等功能。长期来看，联盟还将探索其他收入模式，如许可新闻编辑室数据访问权，并支持针对通过无许可抓取侵占数据的大型科技公司的法律诉讼费用。</p>
+        <p><em>参与条款</em></p>
+        <p>参与包括数据贡献、成员工具访问权以及在联合治理委员会和工作组中的代表权。为参与联盟，组织需签署支持创建共享LLM和工具的数据共享协议和独立的数据使用协议。</p>
+        <p>• NTA拥有基础资金支持与数据录入相关的成本；贡献数据无需成本。</p>
+        <p>• LLM的使用将按实际上传和下载时间计费，不收取ChatGPT等公司使用其工具时的额外费用。</p>
+        <p>• NTA收入将用于以新闻编辑室为中心的工具的开发和维护，以及保护成员知识产权免受未授权使用的法律费用。</p>
+        <p>• 由各成员组织代表组成的指导委员会将长期探索其他收入来源。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="content-card">
+  <div class="section-title" style="font-size:1.05rem;color:#0a1628;font-weight:700;margin-bottom:1rem;">Key Takeaways &middot; 核心发现</div>
+  <div class="findings-grid">
+    <div class="finding-item"><div class="fi-num">Finding 01</div><p>新闻业参与式LLM面临宏观（市场结构）、中观（组织间竞争）和微观（个体工作）三重张力，需要在设计中系统回应。商业LLM对新闻业天然不适合——不是因为性能不足，而是因为控制权、可预测性、公平补偿和自主性等组织性需求无法通过商业模式满足。</p></div>
+    <div class="finding-item"><div class="fi-num">Finding 02</div><p>记者对商业LLM（如ChatGPT）持矛盾态度：既看到其潜力，又担忧数据被侵占、缺乏控制权和公平补偿。参与式设计虚构（design fiction）是探索参与式AI价值主张的有效工具——NTA原型让记者得以具体评估组织性约束。</p></div>
+    <div class="finding-item"><div class="fi-num">Finding 03</div><p>协同设计成果NTA（新闻编辑室工具联盟）提出由记者控制的数据池、用途投票、按成本计费、指导委员会治理等组织架构。真正的参与式AI设计必须给予参与者"所有权"而非只有"快乐的对话"。</p></div>
+    <div class="finding-item"><div class="fi-num">Finding 04</div><p>参与式方法为LLM提供三个核心优势：整体化情境评估、多样化视角覆盖、教育与能力建设——超越传统性能指标。PAR+访谈+设计虚构的组合使LLM这一技术性话题能被不同AI熟悉程度的领域专家所参与。</p></div>
+  </div>
+</div>
+
+<div class="paper-nav">
+  <a class="prev" href="paper04.html"><span class="nav-label">&larr; Prev</span><span class="nav-title">04 &middot; Co-Design &amp; AI in Maternal Health</span></a>
+  <a class="next" href="paper06.html"><span class="nav-label">Next &rarr;</span><span class="nav-title">06 &middot; Unpacking Human-Centered AI</span></a>
+</div>
+</div>
+
+<footer>
+  <p>设计研究文献库 &middot; 医疗AI可解释性设计研究</p>
+  <p style="margin-top:0.3rem;opacity:0.5;font-size:0.75rem">
+    <a href="https://arxiv.org/abs/2501.17299" target="_blank" style="color:rgba(255,255,255,0.5);text-decoration:none;">arXiv: 2501.17299</a>
+  </p>
+</footer>
+<script src="reader.js"></script>
+</body></html>
