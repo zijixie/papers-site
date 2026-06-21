@@ -26,6 +26,11 @@
       </label>
 
       <label>
+        <span>GitHub Token</span>
+        <input id="github-token" name="github-token" type="password" autocomplete="off" required>
+      </label>
+
+      <label>
         <span>主题分类</span>
         <select id="theme" name="theme" required>
           <option value="设计介入跨学科协作">设计介入跨学科协作</option>
@@ -54,11 +59,11 @@
   </section>
 </main>
 
-<script src="upload-config.js"></script>
+<script src="github-upload-config.js"></script>
 <script>
 (function () {
-  const configuredApi = window.PAPERS_UPLOAD_API || "";
-  const API = configuredApi ? configuredApi.replace(/\/$/, "") : "";
+  const cfg = window.PAPERS_GITHUB_UPLOAD || {};
+  const apiRoot = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}`;
   const form = document.getElementById("upload-form");
   const btn = document.getElementById("submit-btn");
   const panel = document.getElementById("status-panel");
@@ -67,6 +72,9 @@
   const bar = document.getElementById("status-bar");
   const message = document.getElementById("status-message");
   const link = document.getElementById("result-link");
+  const tokenInput = document.getElementById("github-token");
+
+  tokenInput.value = localStorage.getItem("papers_github_token") || cfg.token || "";
 
   const progress = {
     queued: 8,
@@ -94,37 +102,116 @@
     }
   }
 
+  function githubHeaders() {
+    return {
+      "Authorization": "Bearer " + tokenInput.value.trim(),
+      "Accept": "application/vnd.github+json",
+      "X-GitHub-Api-Version": "2022-11-28"
+    };
+  }
+
+  function arrayBufferToBase64(buffer) {
+    let binary = "";
+    const bytes = new Uint8Array(buffer);
+    const chunk = 0x8000;
+    for (let i = 0; i < bytes.length; i += chunk) {
+      binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+    }
+    return btoa(binary);
+  }
+
+  async function putGithubFile(path, contentBase64, message) {
+    const res = await fetch(`${apiRoot}/contents/${path}`, {
+      method: "PUT",
+      headers: githubHeaders(),
+      body: JSON.stringify({
+        message,
+        content: contentBase64,
+        branch: cfg.branch
+      })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.message || `GitHub upload failed: ${res.status}`);
+    return data;
+  }
+
+  async function ensureQueueBranch() {
+    const ref = await fetch(`${apiRoot}/git/ref/heads/${cfg.branch}`, { headers: githubHeaders() });
+    if (ref.ok) return;
+    if (ref.status !== 404) {
+      const data = await ref.json().catch(() => ({}));
+      throw new Error(data.message || "无法检查队列分支");
+    }
+
+    const mainRef = await fetch(`${apiRoot}/git/ref/heads/main`, { headers: githubHeaders() });
+    const mainData = await mainRef.json();
+    if (!mainRef.ok) throw new Error(mainData.message || "无法读取 main 分支");
+
+    const create = await fetch(`${apiRoot}/git/refs`, {
+      method: "POST",
+      headers: githubHeaders(),
+      body: JSON.stringify({
+        ref: `refs/heads/${cfg.branch}`,
+        sha: mainData.object.sha
+      })
+    });
+    const createData = await create.json().catch(() => ({}));
+    if (!create.ok) throw new Error(createData.message || "无法创建队列分支");
+  }
+
   async function poll(jobId) {
     for (;;) {
-      const res = await fetch(API + "/api/jobs/" + encodeURIComponent(jobId));
-      const data = await res.json();
-      setStatus(data);
-      if (data.status === "complete" || data.status === "failed") return;
-      await new Promise(resolve => setTimeout(resolve, 2500));
+      const res = await fetch(`${apiRoot}/contents/status/${jobId}.json?ref=${encodeURIComponent(cfg.branch)}&t=${Date.now()}`, {
+        headers: githubHeaders()
+      });
+      if (res.status === 404) {
+        setStatus({status: "queued", label: "排队中", message: "PDF 已提交，等待本机处理。"});
+      } else {
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "状态查询失败");
+        const status = JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\s/g, "")))));
+        setStatus(status);
+        if (status.status === "complete" || status.status === "failed") return;
+      }
+      await new Promise(resolve => setTimeout(resolve, 5000));
     }
   }
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
-    if (!API) {
-      setStatus({status: "failed", label: "配置缺失", message: "upload-config.js 里还没有配置 Cloudflare Tunnel 后端地址。"});
+    if (!cfg.owner || !cfg.repo || !cfg.branch || !tokenInput.value.trim()) {
+      setStatus({status: "failed", label: "配置缺失", message: "GitHub 上传配置不完整。"});
       return;
     }
 
     btn.disabled = true;
     link.hidden = true;
-    setStatus({status: "uploading", label: "上传中", message: "正在上传 PDF。"});
-
-    const fd = new FormData();
-    fd.append("password", document.getElementById("password").value);
-    fd.append("theme", document.getElementById("theme").value);
-    fd.append("pdf", document.getElementById("pdf").files[0]);
+    setStatus({status: "uploading", label: "上传中", message: "正在提交 PDF 到 GitHub 队列。"});
 
     try {
-      const res = await fetch(API + "/api/jobs", { method: "POST", body: fd });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || "上传失败");
-      await poll(data.job_id);
+      if (document.getElementById("password").value !== "eden") {
+        throw new Error("访问密码错误。");
+      }
+      localStorage.setItem("papers_github_token", tokenInput.value.trim());
+      await ensureQueueBranch();
+
+      const file = document.getElementById("pdf").files[0];
+      const theme = document.getElementById("theme").value;
+      const jobId = "job_" + new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 14) + "_" + Math.random().toString(36).slice(2, 8);
+      const dir = `incoming/${jobId}`;
+      const pdfBase64 = arrayBufferToBase64(await file.arrayBuffer());
+      const job = {
+        job_id: jobId,
+        theme,
+        filename: file.name,
+        created_at: new Date().toISOString()
+      };
+      const jobBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(job, null, 2) + "\n")));
+
+      await putGithubFile(`${dir}/input.pdf`, pdfBase64, `Upload PDF for ${jobId}`);
+      await putGithubFile(`${dir}/job.json`, jobBase64, `Create translation job ${jobId}`);
+      setStatus({status: "queued", label: "排队中", message: "PDF 已提交，等待本机 worker 处理。"});
+      await poll(jobId);
     } catch (err) {
       setStatus({status: "failed", label: "失败", message: err.message || String(err)});
     } finally {

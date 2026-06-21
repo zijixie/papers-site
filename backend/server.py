@@ -189,6 +189,27 @@ def process_job(job_id: str, input_pdf: Path, theme: str) -> None:
             job.error = str(exc)
 
 
+def translate_pdf_to_site(input_pdf: Path, theme: str) -> str:
+    paragraphs = extract_pdf_paragraphs(input_pdf)
+    if not paragraphs:
+        raise RuntimeError("没有从 PDF 中抽取到可翻译文本。")
+
+    metadata = llm_extract_metadata(paragraphs)
+    verified = verify_publication(metadata)
+    metrics = lookup_metrics(verified)
+    translations = translate_paragraphs(paragraphs)
+    metadata = llm_refine_metadata(metadata, verified, metrics, paragraphs, translations)
+
+    paper_no = next_paper_number()
+    paper_file = f"paper{paper_no:02d}.html"
+    save_original_pdf(input_pdf, paper_no)
+    page_html = render_paper_html(paper_no, theme, metadata, verified, metrics, paragraphs, translations)
+    (REPO / paper_file).write_text(page_html, encoding="utf-8")
+    update_index(paper_no, theme, paper_file, metadata, verified, metrics)
+    commit_and_maybe_push(paper_no, metadata)
+    return f"{PUBLIC_URL}/{paper_file}"
+
+
 def extract_pdf_paragraphs(pdf_path: Path) -> list[str]:
     doc = fitz.open(pdf_path)
     paragraphs: list[str] = []
@@ -717,7 +738,7 @@ def ensure_theme_section(content: str, theme: str) -> str:
 <div class="card-grid">
 </div>
 """
-    return content
+    return content.replace("\n<footer>", insert + "\n<footer>", 1)
 
 
 def insert_card_into_theme(content: str, theme: str, card: str) -> str:
@@ -765,9 +786,13 @@ def commit_and_maybe_push(paper_no: int, metadata: dict[str, Any]) -> None:
 
 
 def git_push() -> None:
+    git_push_branch(REPO, "main")
+
+
+def git_push_branch(repo: Path, branch: str) -> None:
     token = os.getenv("GITHUB_TOKEN")
     if not token:
-        subprocess.run(["git", "push", "origin", "main"], cwd=REPO, check=True)
+        subprocess.run(["git", "push", "origin", branch], cwd=repo, check=True)
         return
 
     with tempfile.TemporaryDirectory(prefix="papers-git-") as tmpdir:
@@ -785,7 +810,7 @@ def git_push() -> None:
         env = os.environ.copy()
         env["GIT_ASKPASS"] = str(askpass)
         env["GIT_TERMINAL_PROMPT"] = "0"
-        subprocess.run(["git", "push", "origin", "main"], cwd=REPO, env=env, check=True)
+        subprocess.run(["git", "push", "origin", branch], cwd=repo, env=env, check=True)
 
 
 def first_abstract(items: list[str]) -> str:

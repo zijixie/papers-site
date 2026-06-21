@@ -1,6 +1,13 @@
 # Papers Site Upload Backend
 
-FastAPI backend for the private PDF upload and translation workflow.
+Backend tools for the private PDF upload and translation workflow.
+
+The preferred deployment mode is GitHub queue mode:
+
+1. `upload.html` commits PDFs to the `upload-queue` branch through the GitHub Contents API.
+2. `backend/queue_worker.py` runs on this machine, pulls `upload-queue` every 5 seconds, translates new PDFs, pushes generated pages to `main`, and writes job status back to `upload-queue/status`.
+
+The older FastAPI tunnel mode is still present, but no longer required.
 
 ## Environment
 
@@ -25,6 +32,17 @@ export PAPERS_SITE_GIT_PUSH='1'
 `PAPERS_SITE_METRICS_JSON` is the only source used for Q rankings, top-percentile text, and core-journal labels. If no trusted metric record exists, the generated page says the ranking is not verified.
 
 ## Run
+
+Queue worker mode:
+
+```bash
+cd /data/hilbert.xiong/papers-site
+./backend/start_worker.sh
+```
+
+The upload page does not need a public backend URL in this mode.
+
+Legacy FastAPI mode:
 
 ```bash
 cd /data/hilbert.xiong/papers-site
