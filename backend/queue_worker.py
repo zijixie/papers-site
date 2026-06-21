@@ -125,23 +125,28 @@ def put_github_file(path: str, text: str, message: str) -> None:
         "Accept": "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28",
     }
-    sha = None
-    get_res = requests.get(url, headers=headers, params={"ref": QUEUE_BRANCH}, timeout=20)
-    if get_res.status_code == 200:
-        sha = get_res.json().get("sha")
-    elif get_res.status_code != 404:
-        raise RuntimeError(f"GitHub status lookup failed: {get_res.status_code} {get_res.text}")
+    for _ in range(3):
+        sha = None
+        get_res = requests.get(url, headers=headers, params={"ref": QUEUE_BRANCH, "t": str(time.time())}, timeout=20)
+        if get_res.status_code == 200:
+            sha = get_res.json().get("sha")
+        elif get_res.status_code != 404:
+            raise RuntimeError(f"GitHub status lookup failed: {get_res.status_code} {get_res.text}")
 
-    body: dict[str, Any] = {
-        "message": message,
-        "content": base64.b64encode(text.encode("utf-8")).decode("ascii"),
-        "branch": QUEUE_BRANCH,
-    }
-    if sha:
-        body["sha"] = sha
-    put_res = requests.put(url, headers=headers, json=body, timeout=30)
-    if put_res.status_code not in (200, 201):
-        raise RuntimeError(f"GitHub status update failed: {put_res.status_code} {put_res.text}")
+        body: dict[str, Any] = {
+            "message": message,
+            "content": base64.b64encode(text.encode("utf-8")).decode("ascii"),
+            "branch": QUEUE_BRANCH,
+        }
+        if sha:
+            body["sha"] = sha
+        put_res = requests.put(url, headers=headers, json=body, timeout=30)
+        if put_res.status_code in (200, 201):
+            return
+        if put_res.status_code != 409:
+            raise RuntimeError(f"GitHub status update failed: {put_res.status_code} {put_res.text}")
+        time.sleep(1)
+    raise RuntimeError(f"GitHub status update failed after retry: {path}")
 
 
 def run(cmd: list[str], cwd: Path, allow_fail: bool = False) -> subprocess.CompletedProcess[str]:

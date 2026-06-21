@@ -282,7 +282,29 @@ def chat_json(messages: list[dict[str, str]], temperature: float = 0.1) -> Any:
             temperature=temperature,
         )
     content = response.choices[0].message.content or "{}"
-    return json.loads(extract_json_text(content))
+    try:
+        return json.loads(extract_json_text(content))
+    except Exception:
+        log_llm_response(content)
+        raise
+
+
+def chat_text(messages: list[dict[str, str]], temperature: float = 0.2) -> str:
+    response = client().chat.completions.create(
+        model=MODEL,
+        messages=messages,
+        temperature=temperature,
+    )
+    return (response.choices[0].message.content or "").strip()
+
+
+def log_llm_response(content: str) -> None:
+    try:
+        debug_dir = REPO / ".upload_jobs"
+        debug_dir.mkdir(exist_ok=True)
+        (debug_dir / "last_llm_response.txt").write_text(content[:20000], encoding="utf-8")
+    except OSError:
+        pass
 
 
 def extract_json_text(content: str) -> str:
@@ -296,23 +318,30 @@ def extract_json_text(content: str) -> str:
     end = text.rfind("}")
     if start >= 0 and end > start:
         return text[start:end + 1]
+    start = text.find("[")
+    end = text.rfind("]")
+    if start >= 0 and end > start:
+        return text[start:end + 1]
     raise ValueError("LLM did not return valid JSON.")
 
 
 def llm_extract_metadata(paragraphs: list[str]) -> dict[str, Any]:
     sample = "\n\n".join(paragraphs[:35])[:24000]
-    data = chat_json([
-        {"role": "system", "content": (
-            "You extract metadata from academic papers. Return JSON only. "
-            "Do not guess. Unknown values must be null or empty arrays. "
-            "Never invent DOI, journal, ranking, quartile, impact factor, or publication venue."
-        )},
-        {"role": "user", "content": (
-            "Extract this schema: title_original, title_zh, authors, venue, year, doi, "
-            "abstract_original, abstract_zh, keywords_original, keywords_zh, one_sentence_zh, source_language. "
-            "Paper text:\n" + sample
-        )},
-    ])
+    try:
+        data = chat_json([
+            {"role": "system", "content": (
+                "You extract metadata from academic papers. Return JSON only. "
+                "Do not guess. Unknown values must be null or empty arrays. "
+                "Never invent DOI, journal, ranking, quartile, impact factor, or publication venue."
+            )},
+            {"role": "user", "content": (
+                "Extract this schema: title_original, title_zh, authors, venue, year, doi, "
+                "abstract_original, abstract_zh, keywords_original, keywords_zh, one_sentence_zh, source_language. "
+                "Paper text:\n" + sample
+            )},
+        ])
+    except Exception:
+        data = {}
     return data if isinstance(data, dict) else {}
 
 
@@ -320,14 +349,17 @@ def translate_paragraphs(paragraphs: list[str]) -> list[str]:
     translations: list[str] = []
     for i in range(0, len(paragraphs), 18):
         chunk = paragraphs[i:i + 18]
-        data = chat_json([
-            {"role": "system", "content": (
-                "Translate academic paper paragraphs into Simplified Chinese. "
-                "Keep terminology precise, keep citations, formulas, numbers, DOI, and proper nouns unchanged where appropriate. "
-                "Return JSON with key translations, an array with exactly the same length and order as input paragraphs."
-            )},
-            {"role": "user", "content": json.dumps({"paragraphs": chunk}, ensure_ascii=False)},
-        ], temperature=0.2)
+        try:
+            data = chat_json([
+                {"role": "system", "content": (
+                    "Translate academic paper paragraphs into Simplified Chinese. "
+                    "Keep terminology precise, keep citations, formulas, numbers, DOI, and proper nouns unchanged where appropriate. "
+                    "Return JSON with key translations, an array with exactly the same length and order as input paragraphs."
+                )},
+                {"role": "user", "content": json.dumps({"paragraphs": chunk}, ensure_ascii=False)},
+            ], temperature=0.2)
+        except Exception:
+            data = {}
         arr = data.get("translations") if isinstance(data, dict) else None
         if not isinstance(arr, list) or len(arr) != len(chunk):
             arr = [translate_one(p) for p in chunk]
@@ -336,11 +368,18 @@ def translate_paragraphs(paragraphs: list[str]) -> list[str]:
 
 
 def translate_one(text: str) -> str:
-    data = chat_json([
-        {"role": "system", "content": "Translate the academic paragraph to Simplified Chinese. Return JSON {\"translation\":\"...\"}."},
-        {"role": "user", "content": text},
-    ], temperature=0.2)
-    return str(data.get("translation") or text)
+    try:
+        data = chat_json([
+            {"role": "system", "content": "Translate the academic paragraph to Simplified Chinese. Return JSON {\"translation\":\"...\"}."},
+            {"role": "user", "content": text},
+        ], temperature=0.2)
+        return str(data.get("translation") or text)
+    except Exception:
+        translated = chat_text([
+            {"role": "system", "content": "Translate the academic paragraph to Simplified Chinese. Return only the translated paragraph, no JSON."},
+            {"role": "user", "content": text},
+        ], temperature=0.2)
+        return translated or text
 
 
 def llm_refine_metadata(
@@ -350,26 +389,29 @@ def llm_refine_metadata(
     paragraphs: list[str],
     translations: list[str],
 ) -> dict[str, Any]:
-    data = chat_json([
-        {"role": "system", "content": (
-            "You prepare metadata for a bilingual academic reading site. "
-            "Return JSON only. Do not invent publication facts. "
-            "Ranking, quartile, impact factor, core-journal and top-percentile claims may only use the provided verified_metrics object. "
-            "If verified_metrics is null, ranking_note_zh must be '期刊/会议分区与排名未核验'."
-        )},
-        {"role": "user", "content": json.dumps({
-            "extracted_metadata": metadata,
-            "verified_publication": verified,
-            "verified_metrics": metrics,
-            "first_original_paragraphs": paragraphs[:12],
-            "first_translated_paragraphs": translations[:12],
-            "schema": [
-                "title_original", "title_zh", "authors_display", "venue_display", "year",
-                "doi", "abstract_original", "abstract_zh", "keywords_zh", "keywords_original",
-                "one_sentence_zh", "ranking_note_zh", "badges"
-            ],
-        }, ensure_ascii=False)},
-    ])
+    try:
+        data = chat_json([
+            {"role": "system", "content": (
+                "You prepare metadata for a bilingual academic reading site. "
+                "Return JSON only. Do not invent publication facts. "
+                "Ranking, quartile, impact factor, core-journal and top-percentile claims may only use the provided verified_metrics object. "
+                "If verified_metrics is null, ranking_note_zh must be '期刊/会议分区与排名未核验'."
+            )},
+            {"role": "user", "content": json.dumps({
+                "extracted_metadata": metadata,
+                "verified_publication": verified,
+                "verified_metrics": metrics,
+                "first_original_paragraphs": paragraphs[:12],
+                "first_translated_paragraphs": translations[:12],
+                "schema": [
+                    "title_original", "title_zh", "authors_display", "venue_display", "year",
+                    "doi", "abstract_original", "abstract_zh", "keywords_zh", "keywords_original",
+                    "one_sentence_zh", "ranking_note_zh", "badges"
+                ],
+            }, ensure_ascii=False)},
+        ])
+    except Exception:
+        data = {}
     if isinstance(data, dict):
         return {**metadata, **data}
     return metadata
