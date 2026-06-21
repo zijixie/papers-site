@@ -1,8 +1,8 @@
 {
   "job_id": "job_20260621115618_3xmm2e",
-  "status": "failed",
-  "label": "失败",
-  "progress": 100,
-  "message": "LLM did not return valid JSON.",
-  "updated_at": 1782043091
+  "status": "extracting",
+  "label": "抽取中",
+  "progress": 30,
+  "message": "正在从 PDF 抽取正文、标题和段落。",
+  "updated_at": 1782043109
 }
