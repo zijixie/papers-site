@@ -1,9 +1,8 @@
 {
   "job_id": "job_20260621123301_cy58wl",
-  "status": "complete",
-  "label": "完成",
+  "status": "failed",
+  "label": "失败",
   "progress": 100,
-  "message": "新论文页面已生成并部署。",
-  "updated_at": 1782046058,
-  "url": "https://zijixie.github.io/papers-site/paper13.html"
+  "message": "已撤回：此前页面中文列未真正翻译。修复后请重新上传 PDF 触发新任务。",
+  "updated_at": 1782046262
 }
