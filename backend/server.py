@@ -17,6 +17,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+import anthropic
 import fitz
 import requests
 from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, UploadFile
@@ -36,10 +37,29 @@ def load_dotenv(path: Path) -> None:
         os.environ.setdefault(key, value)
 
 
-load_dotenv(Path(__file__).resolve().parents[1] / ".env")
+def load_settings_json() -> None:
+    """Load LLM credentials from ~/.claude/settings.json, overriding .env values."""
+    settings_path = Path.home() / ".claude" / "settings.json"
+    if not settings_path.exists():
+        return
+    try:
+        data = json.loads(settings_path.read_text(encoding="utf-8"))
+        env = data.get("env", {})
+        if env.get("ANTHROPIC_BASE_URL"):
+            os.environ["LLM_BASE_URL"] = env["ANTHROPIC_BASE_URL"]
+        if env.get("ANTHROPIC_AUTH_TOKEN"):
+            os.environ["LLM_API_KEY"] = env["ANTHROPIC_AUTH_TOKEN"]
+        if env.get("ANTHROPIC_MODEL"):
+            os.environ["LLM_MODEL"] = env["ANTHROPIC_MODEL"]
+    except Exception:
+        pass
 
-BASE_URL = os.getenv("LLM_BASE_URL") or os.getenv("DASHSCOPE_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")
-MODEL = os.getenv("LLM_MODEL") or os.getenv("DASHSCOPE_MODEL", "qwen-plus")
+
+load_dotenv(Path(__file__).resolve().parents[1] / ".env")
+load_settings_json()
+
+BASE_URL = os.getenv("LLM_BASE_URL", "https://llm-gateway.momenta.works")
+MODEL = os.getenv("LLM_MODEL", "claude-sonnet-4-6[1m]")
 PASSWORD = os.getenv("PAPERS_UPLOAD_PASSWORD", "eden")
 REPO = Path(os.getenv("PAPERS_SITE_REPO", Path(__file__).resolve().parents[1])).resolve()
 PUBLIC_URL = os.getenv("PAPERS_SITE_PUBLIC_URL", "https://zijixie.github.io/papers-site").rstrip("/")
@@ -292,46 +312,34 @@ def merge_short_lines(paragraphs: list[str]) -> list[str]:
 def llm_key() -> str:
     key = os.getenv("LLM_API_KEY") or os.getenv("DASHSCOPE_API_KEY")
     if not key:
-        raise RuntimeError("缺少 LLM_API_KEY 或 DASHSCOPE_API_KEY 环境变量。")
+        raise RuntimeError("缺少 LLM_API_KEY 环境变量。请检查 ~/.claude/settings.json 中的 ANTHROPIC_AUTH_TOKEN。")
     return key
 
 
-def llm_chat(messages: list[dict[str, str]], temperature: float = 0.2, json_mode: bool = False) -> str:
-    endpoint = BASE_URL.rstrip("/") + "/chat/completions"
-    payload: dict[str, Any] = {
-        "model": MODEL,
-        "messages": messages,
-        "temperature": temperature,
-    }
-    if json_mode:
-        payload["response_format"] = {"type": "json_object"}
+def _make_anthropic_client() -> anthropic.Anthropic:
+    return anthropic.Anthropic(api_key=llm_key(), base_url=BASE_URL)
+
+
+def llm_chat(messages: list[dict[str, str]], temperature: float = 0.2) -> str:
+    system_parts = [m["content"] for m in messages if m["role"] == "system"]
+    user_messages = [{"role": m["role"], "content": m["content"]} for m in messages if m["role"] != "system"]
+    system_text = "\n\n".join(system_parts)
+
+    client = _make_anthropic_client()
     try:
         with hard_timeout(LLM_TIMEOUT_SECONDS):
-            res = requests.post(
-                endpoint,
-                headers={
-                    "Authorization": f"Bearer {llm_key()}",
-                    "Content-Type": "application/json",
-                },
-                json=payload,
-                timeout=(10, max(20, LLM_TIMEOUT_SECONDS - 5)),
-            )
-            if res.status_code >= 400 and json_mode:
-                payload.pop("response_format", None)
-                res = requests.post(
-                    endpoint,
-                    headers={
-                        "Authorization": f"Bearer {llm_key()}",
-                        "Content-Type": "application/json",
-                    },
-                    json=payload,
-                    timeout=(10, max(20, LLM_TIMEOUT_SECONDS - 5)),
-                )
+            kwargs: dict[str, Any] = {
+                "model": MODEL,
+                "max_tokens": 8192,
+                "temperature": temperature,
+                "messages": user_messages,
+            }
+            if system_text:
+                kwargs["system"] = system_text
+            response = client.messages.create(**kwargs)
+            return response.content[0].text.strip()
     except TimeoutError:
         raise RuntimeError(f"LLM request timed out after {LLM_TIMEOUT_SECONDS} seconds.")
-    res.raise_for_status()
-    data = res.json()
-    return (data.get("choices", [{}])[0].get("message", {}).get("content") or "").strip()
 
 
 class hard_timeout:
@@ -354,7 +362,7 @@ class hard_timeout:
 
 
 def chat_json(messages: list[dict[str, str]], temperature: float = 0.1) -> Any:
-    content = llm_chat(messages, temperature=temperature, json_mode=True)
+    content = llm_chat(messages, temperature=temperature)
     try:
         return json.loads(extract_json_text(content))
     except Exception:
@@ -363,7 +371,7 @@ def chat_json(messages: list[dict[str, str]], temperature: float = 0.1) -> Any:
 
 
 def chat_text(messages: list[dict[str, str]], temperature: float = 0.2) -> str:
-    return llm_chat(messages, temperature=temperature, json_mode=False)
+    return llm_chat(messages, temperature=temperature)
 
 
 def log_llm_response(content: str) -> None:
@@ -898,7 +906,7 @@ def find_matching_grid_end(content: str, grid_start: int) -> int:
 
 
 def commit_and_maybe_push(paper_no: int, metadata: dict[str, Any]) -> None:
-    subprocess.run(["git", "add", "index.html", f"paper{paper_no:02d}.html", "assets"], cwd=REPO, check=True)
+    subprocess.run(["git", "add", "-A"], cwd=REPO, check=True)
     title = text_value(metadata.get("title_original") or f"paper{paper_no:02d}")
     msg = f"Add translated paper {paper_no:02d}: {title[:80]}"
     status = subprocess.run(["git", "status", "--porcelain"], cwd=REPO, text=True, capture_output=True, check=True)

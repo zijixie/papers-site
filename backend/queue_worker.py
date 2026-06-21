@@ -50,6 +50,14 @@ def main() -> int:
 def should_submit(job_id: str) -> bool:
     if is_done(job_id):
         return False
+    status_path = QUEUE_DIR / "status" / f"{job_id}.json"
+    if status_path.exists():
+        try:
+            status = json.loads(status_path.read_text(encoding="utf-8")).get("status")
+            if status in {"complete", "failed"}:
+                return False
+        except json.JSONDecodeError:
+            pass
     with active_lock:
         return job_id not in active_jobs
 

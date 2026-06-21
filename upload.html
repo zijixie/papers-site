@@ -5,6 +5,37 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>上传论文 · 设计研究文献库</title>
 <link rel="stylesheet" href="styles.css">
+<style>
+.upload-shell { max-width: 560px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+.upload-panel { background: var(--card-bg, #1a1a2e); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 2rem 2rem 2.4rem; }
+.upload-kicker { font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--accent, #7c83f7); margin-bottom: .6rem; }
+.upload-panel h1 { font-size: 1.45rem; font-weight: 700; margin: 0 0 1.6rem; }
+.upload-form { display: flex; flex-direction: column; gap: 1.1rem; }
+.upload-form label { display: flex; flex-direction: column; gap: .35rem; font-size: .82rem; color: rgba(255,255,255,0.7); }
+.upload-form input, .upload-form select {
+  padding: .55rem .8rem; border-radius: 8px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+  color: #fff; font-size: .9rem;
+}
+.upload-form input[type=file] { padding: .4rem .5rem; }
+#submit-btn {
+  margin-top: .6rem; padding: .7rem 1.4rem; border-radius: 10px;
+  background: var(--accent, #7c83f7); color: #fff; font-size: .95rem;
+  font-weight: 600; border: none; cursor: pointer; transition: opacity .2s;
+}
+#submit-btn:disabled { opacity: .45; cursor: default; }
+.status-panel { margin-top: 1.6rem; padding: 1.2rem 1.4rem; border-radius: 12px;
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); }
+.status-head { display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: .6rem; font-size: .82rem; font-weight: 600; }
+.status-track { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; margin-bottom: .8rem; }
+#status-bar { height: 100%; width: 0; background: var(--accent, #7c83f7); transition: width .6s; }
+#status-message { font-size: .82rem; color: rgba(255,255,255,0.6); margin: 0 0 .5rem; }
+.result-link { display: inline-block; margin-top: .6rem; padding: .5rem 1rem; border-radius: 8px;
+  background: rgba(124,131,247,.18); color: var(--accent, #7c83f7); font-size: .85rem; font-weight: 600;
+  text-decoration: none; border: 1px solid rgba(124,131,247,.3); }
+.token-hint { font-size: .75rem; color: rgba(255,255,255,0.4); margin-top: -.4rem; line-height: 1.4; }
+</style>
 </head>
 <body>
 <nav>
@@ -21,274 +52,187 @@
     <h1>上传论文</h1>
     <form id="upload-form" class="upload-form">
       <label>
-        <span>访问密码</span>
-        <input id="password" name="password" type="password" autocomplete="current-password" required>
-      </label>
-
-      <label id="github-token-field" hidden>
-        <span>GitHub Token</span>
-        <input id="github-token" name="github-token" type="password" autocomplete="off">
+        <span>GitHub Token（用于提交文件）</span>
+        <input id="github-token" name="github-token" type="password" autocomplete="off" placeholder="ghp_…" required>
+        <span class="token-hint">仅存储在浏览器本地，不会上传到任何服务器。可通过 URL 的 #token=… 预填。</span>
       </label>
 
       <label>
         <span>主题分类</span>
-        <select id="theme" name="theme" required>
-          <option value="设计介入跨学科协作">设计介入跨学科协作</option>
-          <option value="设计转译">设计转译</option>
-          <option value="新主题">新主题</option>
+        <select id="theme" name="theme">
+          <option value="theme1">设计介入跨学科协作</option>
+          <option value="theme2">设计转译</option>
+          <option value="theme3">新主题</option>
         </select>
       </label>
 
       <label>
-        <span>PDF 文件（1-5 个）</span>
+        <span>PDF 文件（支持多选）</span>
         <input id="pdf" name="pdf" type="file" accept="application/pdf,.pdf" multiple required>
       </label>
 
-      <button id="submit-btn" type="submit">开始翻译</button>
+      <button id="submit-btn" type="submit">上传并翻译</button>
     </form>
 
     <div id="status-panel" class="status-panel" hidden>
       <div class="status-head">
         <span id="status-label">等待上传</span>
-        <span id="status-step">0%</span>
+        <span id="status-pct">0%</span>
       </div>
       <div class="status-track"><div id="status-bar"></div></div>
       <p id="status-message"></p>
-      <a id="result-link" class="result-link" href="#" target="_blank" rel="noreferrer" hidden>打开新论文页面</a>
-      <div id="jobs-list" class="jobs-list"></div>
+      <a id="result-link" class="result-link" href="#" target="_blank" rel="noreferrer" hidden>打开新论文页面 →</a>
     </div>
   </section>
 </main>
 
-<script src="github-upload-config.js"></script>
 <script>
 (function () {
-  const cfg = window.PAPERS_GITHUB_UPLOAD || {};
-  const apiRoot = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}`;
-  const form = document.getElementById("upload-form");
-  const btn = document.getElementById("submit-btn");
-  const panel = document.getElementById("status-panel");
-  const label = document.getElementById("status-label");
-  const step = document.getElementById("status-step");
-  const bar = document.getElementById("status-bar");
-  const message = document.getElementById("status-message");
-  const link = document.getElementById("result-link");
-  const jobsList = document.getElementById("jobs-list");
-  const tokenInput = document.getElementById("github-token");
-  const tokenField = document.getElementById("github-token-field");
+  const OWNER  = "zijixie";
+  const REPO   = "papers-site";
+  const BRANCH = "main";
+  const API    = `https://api.github.com/repos/${OWNER}/${REPO}`;
+  const PUBLIC = "https://zijixie.github.io/papers-site";
 
-  function readTokenFromHash() {
-    const hash = window.location.hash ? window.location.hash.slice(1) : "";
-    if (!hash) return "";
-    const params = new URLSearchParams(hash);
-    return params.get("token") || params.get("github_token") || "";
-  }
+  const form    = document.getElementById("upload-form");
+  const btn     = document.getElementById("submit-btn");
+  const panel   = document.getElementById("status-panel");
+  const labelEl = document.getElementById("status-label");
+  const pctEl   = document.getElementById("status-pct");
+  const barEl   = document.getElementById("status-bar");
+  const msgEl   = document.getElementById("status-message");
+  const linkEl  = document.getElementById("result-link");
+  const tokenEl = document.getElementById("github-token");
 
-  const hashToken = readTokenFromHash();
+  // Pre-fill token from URL hash (#token=ghp_...) or localStorage
+  const hashParams = new URLSearchParams(window.location.hash.slice(1));
+  const hashToken = hashParams.get("token") || hashParams.get("github_token");
   if (hashToken) {
     localStorage.setItem("papers_github_token", hashToken);
-    history.replaceState(null, "", window.location.pathname + window.location.search);
+    history.replaceState(null, "", window.location.pathname);
   }
-  tokenInput.value = localStorage.getItem("papers_github_token") || cfg.token || "";
-  tokenField.hidden = Boolean(tokenInput.value);
+  tokenEl.value = localStorage.getItem("papers_github_token") || "";
 
-  const progress = {
-    queued: 8,
-    uploading: 15,
-    extracting: 30,
-    verifying: 42,
-    translating: 64,
-    rendering: 78,
-    deploying: 90,
-    complete: 100,
-    failed: 100
-  };
-
-  const jobStates = new Map();
-
-  function setStatus(data) {
-    const pct = Number.isFinite(data.progress) ? data.progress : (progress[data.status] || 0);
+  function setStatus(label, pct, msg) {
     panel.hidden = false;
-    label.textContent = data.label || data.status || "处理中";
-    step.textContent = pct + "%";
-    bar.style.width = pct + "%";
-    message.textContent = data.message || "";
-    panel.classList.toggle("failed", data.status === "failed");
-    if (data.url) {
-      link.href = data.url;
-      link.hidden = false;
-    }
+    labelEl.textContent = label;
+    pctEl.textContent = Math.round(pct) + "%";
+    barEl.style.width = Math.round(pct) + "%";
+    msgEl.textContent = msg;
   }
 
-  function renderJobs() {
-    if (!jobStates.size) {
-      jobsList.innerHTML = "";
-      return;
-    }
-    jobsList.innerHTML = Array.from(jobStates.values()).map(job => {
-      const safeName = escapeHtml(job.filename || job.job_id || "");
-      const safeLabel = escapeHtml(job.label || job.status || "");
-      const safeMessage = escapeHtml(job.message || "");
-      const url = job.url ? `<a href="${escapeAttr(job.url)}" target="_blank" rel="noreferrer">打开</a>` : "";
-      return `<div class="job-row">
-        <strong>${safeName}</strong>
-        <span>${safeLabel} · ${job.progress || 0}%</span>
-        <em>${safeMessage}</em>
-        ${url}
-      </div>`;
-    }).join("");
-  }
-
-  function escapeHtml(value) {
-    return String(value).replace(/[&<>"']/g, ch => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;"
-    }[ch]));
-  }
-
-  function escapeAttr(value) {
-    return escapeHtml(value).replace(/`/g, "&#96;");
-  }
-
-  function setJobStatus(jobId, data) {
-    const previous = jobStates.get(jobId) || {job_id: jobId};
-    jobStates.set(jobId, Object.assign(previous, data));
-    renderJobs();
-    const jobs = Array.from(jobStates.values());
-    const done = jobs.filter(job => job.status === "complete" || job.status === "failed").length;
-    const complete = jobs.filter(job => job.status === "complete").length;
-    const failed = jobs.filter(job => job.status === "failed").length;
-    const avg = Math.round(jobs.reduce((sum, job) => sum + (job.progress || 0), 0) / Math.max(jobs.length, 1));
-    setStatus({
-      status: failed && done === jobs.length ? "failed" : done === jobs.length ? "complete" : "translating",
-      label: `${done}/${jobs.length} 完成`,
-      message: `成功 ${complete} 个，失败 ${failed} 个。`,
-      progress: avg
+  async function ghRequest(method, path, body) {
+    const token = tokenEl.value.trim();
+    const res = await fetch(`${API}${path}`, {
+      method,
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        ...(body ? {"Content-Type": "application/json"} : {}),
+      },
+      ...(body ? {body: JSON.stringify(body)} : {}),
     });
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`GitHub ${method} ${path} → ${res.status}: ${text.slice(0, 300)}`);
+    }
+    return res.json();
   }
 
-  function githubHeaders() {
-    return {
-      "Authorization": "Bearer " + tokenInput.value.trim(),
-      "Accept": "application/vnd.github+json",
-      "X-GitHub-Api-Version": "2022-11-28"
-    };
+  async function listPaperNames() {
+    try {
+      const items = await ghRequest("GET", `/contents/?ref=${BRANCH}&t=${Date.now()}`);
+      return items.filter(f => /^paper\d+\.html$/.test(f.name)).map(f => f.name);
+    } catch { return []; }
   }
 
-  function arrayBufferToBase64(buffer) {
+  async function pushFile(pendingPath, arrayBuffer, commitMsg) {
+    // Convert ArrayBuffer to base64
+    const bytes = new Uint8Array(arrayBuffer);
     let binary = "";
-    const bytes = new Uint8Array(buffer);
-    const chunk = 0x8000;
-    for (let i = 0; i < bytes.length; i += chunk) {
-      binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+    for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+    const base64 = btoa(binary);
+
+    // Check if file already exists (get sha for update)
+    let sha;
+    try {
+      const info = await ghRequest("GET", `/contents/${pendingPath}?ref=${BRANCH}`);
+      sha = info.sha;
+    } catch (e) {
+      if (!String(e.message).includes("404")) throw e;
     }
-    return btoa(binary);
+    const body = {message: commitMsg, content: base64, branch: BRANCH};
+    if (sha) body.sha = sha;
+    await ghRequest("PUT", `/contents/${pendingPath}`, body);
   }
 
-  async function putGithubFile(path, contentBase64, message) {
-    const res = await fetch(`${apiRoot}/contents/${path}`, {
-      method: "PUT",
-      headers: githubHeaders(),
-      body: JSON.stringify({
-        message,
-        content: contentBase64,
-        branch: cfg.branch
-      })
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.message || `GitHub upload failed: ${res.status}`);
-    return data;
-  }
-
-  async function ensureQueueBranch() {
-    const ref = await fetch(`${apiRoot}/git/ref/heads/${cfg.branch}`, { headers: githubHeaders() });
-    if (ref.ok) return;
-    if (ref.status !== 404) {
-      const data = await ref.json().catch(() => ({}));
-      throw new Error(data.message || "无法检查队列分支");
-    }
-
-    const mainRef = await fetch(`${apiRoot}/git/ref/heads/main`, { headers: githubHeaders() });
-    const mainData = await mainRef.json();
-    if (!mainRef.ok) throw new Error(mainData.message || "无法读取 main 分支");
-
-    const create = await fetch(`${apiRoot}/git/refs`, {
-      method: "POST",
-      headers: githubHeaders(),
-      body: JSON.stringify({
-        ref: `refs/heads/${cfg.branch}`,
-        sha: mainData.object.sha
-      })
-    });
-    const createData = await create.json().catch(() => ({}));
-    if (!create.ok) throw new Error(createData.message || "无法创建队列分支");
-  }
-
-  async function poll(jobId) {
-    for (;;) {
-      const res = await fetch(`${apiRoot}/contents/status/${jobId}.json?ref=${encodeURIComponent(cfg.branch)}&t=${Date.now()}`, {
-        headers: githubHeaders()
-      });
-      if (res.status === 404) {
-        setJobStatus(jobId, {status: "queued", label: "排队中", progress: 8, message: "PDF 已提交，等待本机处理。"});
-      } else {
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message || "状态查询失败");
-        const status = JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\s/g, "")))));
-        setJobStatus(jobId, status);
-        if (status.status === "complete" || status.status === "failed") return;
+  async function pollForNewPaper(beforeNames, maxWaitMs) {
+    const interval = 25000;
+    const deadline = Date.now() + maxWaitMs;
+    while (Date.now() < deadline) {
+      await new Promise(r => setTimeout(r, interval));
+      const elapsed = Math.round((Date.now() - (deadline - maxWaitMs)) / 1000);
+      const mins = Math.floor(elapsed / 60);
+      const secs = elapsed % 60;
+      const timeStr = mins > 0 ? `${mins}分${secs}秒` : `${secs}秒`;
+      setStatus("处理中…", 60 + Math.min(elapsed / (maxWaitMs / 1000) * 30, 28),
+        `已等待 ${timeStr}，后台正在提取文本、核验出版信息并逐段翻译，请稍候…`);
+      const afterNames = await listPaperNames();
+      const newPapers = afterNames.filter(n => !beforeNames.includes(n));
+      if (newPapers.length > 0) {
+        newPapers.sort();
+        return `${PUBLIC}/${newPapers[newPapers.length - 1]}`;
       }
-      await new Promise(resolve => setTimeout(resolve, 5000));
     }
+    return null;
   }
 
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    if (!cfg.owner || !cfg.repo || !cfg.branch || !tokenInput.value.trim()) {
-      setStatus({status: "failed", label: "配置缺失", message: "GitHub 上传配置不完整。"});
-      return;
-    }
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const token = tokenEl.value.trim();
+    if (!token) { alert("请输入 GitHub Token"); return; }
+    localStorage.setItem("papers_github_token", token);
 
+    const files = Array.from(document.getElementById("pdf").files);
+    if (!files.length) { alert("请选择 PDF 文件"); return; }
+
+    const themeSlug = document.getElementById("theme").value;
     btn.disabled = true;
-    link.hidden = true;
-    setStatus({status: "uploading", label: "上传中", message: "正在提交 PDF 到 GitHub 队列。"});
+    linkEl.hidden = true;
 
     try {
-      if (document.getElementById("password").value !== "eden") {
-        throw new Error("访问密码错误。");
-      }
-      localStorage.setItem("papers_github_token", tokenInput.value.trim());
-      await ensureQueueBranch();
+      setStatus("准备中…", 5, "正在读取当前论文列表…");
+      const beforeNames = await listPaperNames();
 
-      const files = Array.from(document.getElementById("pdf").files);
-      if (files.length < 1 || files.length > 5) {
-        throw new Error("请一次选择 1-5 个 PDF 文件。");
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        setStatus("上传中…", 10 + (i / files.length) * 40,
+          `正在上传 ${file.name}（${i + 1}/${files.length}）`);
+        const buf = await file.arrayBuffer();
+        const ts = Date.now();
+        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+        const pendingName = `${themeSlug}_${ts}_${safeName}`;
+        await pushFile(`pending/${pendingName}`, buf,
+          `Upload PDF for translation: ${file.name}`);
       }
-      const theme = document.getElementById("theme").value;
-      const jobIds = [];
-      for (const file of files) {
-        const jobId = "job_" + new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 14) + "_" + Math.random().toString(36).slice(2, 8);
-        jobIds.push(jobId);
-        setJobStatus(jobId, {job_id: jobId, filename: file.name, status: "uploading", label: "上传中", progress: 15, message: "正在提交到 GitHub 队列。"});
-        const dir = `incoming/${jobId}`;
-        const pdfBase64 = arrayBufferToBase64(await file.arrayBuffer());
-        const job = {
-          job_id: jobId,
-          theme,
-          filename: file.name,
-          created_at: new Date().toISOString()
-        };
-        const jobBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(job, null, 2) + "\n")));
-        await putGithubFile(`${dir}/input.pdf`, pdfBase64, `Upload PDF for ${jobId}`);
-        await putGithubFile(`${dir}/job.json`, jobBase64, `Create translation job ${jobId}`);
-        setJobStatus(jobId, {job_id: jobId, filename: file.name, status: "queued", label: "排队中", progress: 8, message: "PDF 已提交，等待本机 worker 处理。"});
+
+      setStatus("已提交！", 55,
+        `${files.timing ? "" : ""}${files.length} 个 PDF 已推送到 pending/，后台每 5 秒轮询一次，约 3–8 分钟后完成翻译并部署…`);
+
+      // 每 25 秒轮询，最多等 15 分钟
+      const url = await pollForNewPaper(beforeNames, 15 * 60 * 1000);
+      if (url) {
+        setStatus("完成！", 100, "翻译完成，新论文页面已部署到 GitHub Pages。");
+        linkEl.href = url;
+        linkEl.hidden = false;
+      } else {
+        setStatus("后台仍在运行", 90,
+          "超时未检测到新论文（可能需要更长时间）。请稍后刷新首页查看，或检查后台 watcher 日志。");
       }
-      await Promise.all(jobIds.map(poll));
     } catch (err) {
-      setStatus({status: "failed", label: "失败", message: err.message || String(err)});
+      setStatus("出错", 0, `错误：${err.message}`);
+      console.error(err);
     } finally {
       btn.disabled = false;
     }
