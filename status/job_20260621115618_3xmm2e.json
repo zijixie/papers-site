@@ -1,8 +1,8 @@
 {
   "job_id": "job_20260621115618_3xmm2e",
-  "status": "extracting",
-  "label": "抽取中",
-  "progress": 30,
-  "message": "正在从 PDF 抽取正文、标题和段落。",
-  "updated_at": 1782044739
+  "status": "translating",
+  "label": "翻译中",
+  "progress": 64,
+  "message": "正在核验出版信息并翻译全文。",
+  "updated_at": 1782044743
 }
