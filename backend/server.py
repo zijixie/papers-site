@@ -50,7 +50,9 @@ def load_settings_json() -> None:
         if env.get("ANTHROPIC_AUTH_TOKEN"):
             os.environ["LLM_API_KEY"] = env["ANTHROPIC_AUTH_TOKEN"]
         if env.get("ANTHROPIC_MODEL"):
-            os.environ["LLM_MODEL"] = env["ANTHROPIC_MODEL"]
+            # Strip Claude Code routing suffixes like [1m] before passing to gateway
+            model = re.sub(r"\[.*?\]", "", env["ANTHROPIC_MODEL"]).strip()
+            os.environ["LLM_MODEL"] = model
     except Exception:
         pass
 

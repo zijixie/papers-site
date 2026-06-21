@@ -49,6 +49,7 @@ def load_settings_json() -> None:
         print("[watcher] ~/.claude/settings.json not found, using .env for LLM config", flush=True)
         return
     try:
+        import re
         data = json.loads(settings_path.read_text(encoding="utf-8"))
         env = data.get("env", {})
         if env.get("ANTHROPIC_BASE_URL"):
@@ -56,10 +57,12 @@ def load_settings_json() -> None:
         if env.get("ANTHROPIC_AUTH_TOKEN"):
             os.environ["LLM_API_KEY"] = env["ANTHROPIC_AUTH_TOKEN"]
         if env.get("ANTHROPIC_MODEL"):
-            os.environ["LLM_MODEL"] = env["ANTHROPIC_MODEL"]
+            # Strip Claude Code routing suffixes like [1m] before passing to gateway
+            model = re.sub(r"\[.*?\]", "", env["ANTHROPIC_MODEL"]).strip()
+            os.environ["LLM_MODEL"] = model
         print(
             f"[watcher] LLM config: base_url={env.get('ANTHROPIC_BASE_URL')}, "
-            f"model={env.get('ANTHROPIC_MODEL')}",
+            f"model={os.environ.get('LLM_MODEL')}",
             flush=True,
         )
     except Exception as e:
