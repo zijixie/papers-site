@@ -20,7 +20,6 @@ import fitz
 import requests
 from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from openai import OpenAI, OpenAIError
 
 
 def load_dotenv(path: Path) -> None:
@@ -259,29 +258,49 @@ def merge_short_lines(paragraphs: list[str]) -> list[str]:
     return merged
 
 
-def client() -> OpenAI:
+def llm_key() -> str:
     key = os.getenv("LLM_API_KEY") or os.getenv("DASHSCOPE_API_KEY")
     if not key:
         raise RuntimeError("缺少 LLM_API_KEY 或 DASHSCOPE_API_KEY 环境变量。")
-    return OpenAI(api_key=key, base_url=BASE_URL, timeout=60.0, max_retries=1)
+    return key
+
+
+def llm_chat(messages: list[dict[str, str]], temperature: float = 0.2, json_mode: bool = False) -> str:
+    endpoint = BASE_URL.rstrip("/") + "/chat/completions"
+    payload: dict[str, Any] = {
+        "model": MODEL,
+        "messages": messages,
+        "temperature": temperature,
+    }
+    if json_mode:
+        payload["response_format"] = {"type": "json_object"}
+    res = requests.post(
+        endpoint,
+        headers={
+            "Authorization": f"Bearer {llm_key()}",
+            "Content-Type": "application/json",
+        },
+        json=payload,
+        timeout=(10, 45),
+    )
+    if res.status_code >= 400 and json_mode:
+        payload.pop("response_format", None)
+        res = requests.post(
+            endpoint,
+            headers={
+                "Authorization": f"Bearer {llm_key()}",
+                "Content-Type": "application/json",
+            },
+            json=payload,
+            timeout=(10, 45),
+        )
+    res.raise_for_status()
+    data = res.json()
+    return (data.get("choices", [{}])[0].get("message", {}).get("content") or "").strip()
 
 
 def chat_json(messages: list[dict[str, str]], temperature: float = 0.1) -> Any:
-    llm = client()
-    try:
-        response = llm.chat.completions.create(
-            model=MODEL,
-            messages=messages,
-            temperature=temperature,
-            response_format={"type": "json_object"},
-        )
-    except OpenAIError:
-        response = llm.chat.completions.create(
-            model=MODEL,
-            messages=messages,
-            temperature=temperature,
-        )
-    content = response.choices[0].message.content or "{}"
+    content = llm_chat(messages, temperature=temperature, json_mode=True)
     try:
         return json.loads(extract_json_text(content))
     except Exception:
@@ -290,12 +309,7 @@ def chat_json(messages: list[dict[str, str]], temperature: float = 0.1) -> Any:
 
 
 def chat_text(messages: list[dict[str, str]], temperature: float = 0.2) -> str:
-    response = client().chat.completions.create(
-        model=MODEL,
-        messages=messages,
-        temperature=temperature,
-    )
-    return (response.choices[0].message.content or "").strip()
+    return llm_chat(messages, temperature=temperature, json_mode=False)
 
 
 def log_llm_response(content: str) -> None:
