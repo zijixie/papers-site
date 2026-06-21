@@ -1,8 +1,8 @@
 {
   "job_id": "job_20260621123301_cy58wl",
-  "status": "failed",
-  "label": "失败",
-  "progress": 100,
-  "message": "paper11 中文列未真正翻译，已撤回，等待修复后重新处理。",
-  "updated_at": 1782046002
+  "status": "extracting",
+  "label": "抽取中",
+  "progress": 30,
+  "message": "正在从 PDF 抽取正文、标题和段落。",
+  "updated_at": 1782046015
 }
