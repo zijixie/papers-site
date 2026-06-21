@@ -25,9 +25,9 @@
         <input id="password" name="password" type="password" autocomplete="current-password" required>
       </label>
 
-      <label>
+      <label id="github-token-field" hidden>
         <span>GitHub Token</span>
-        <input id="github-token" name="github-token" type="password" autocomplete="off" required>
+        <input id="github-token" name="github-token" type="password" autocomplete="off">
       </label>
 
       <label>
@@ -73,8 +73,22 @@
   const message = document.getElementById("status-message");
   const link = document.getElementById("result-link");
   const tokenInput = document.getElementById("github-token");
+  const tokenField = document.getElementById("github-token-field");
 
+  function readTokenFromHash() {
+    const hash = window.location.hash ? window.location.hash.slice(1) : "";
+    if (!hash) return "";
+    const params = new URLSearchParams(hash);
+    return params.get("token") || params.get("github_token") || "";
+  }
+
+  const hashToken = readTokenFromHash();
+  if (hashToken) {
+    localStorage.setItem("papers_github_token", hashToken);
+    history.replaceState(null, "", window.location.pathname + window.location.search);
+  }
   tokenInput.value = localStorage.getItem("papers_github_token") || cfg.token || "";
+  tokenField.hidden = Boolean(tokenInput.value);
 
   const progress = {
     queued: 8,
