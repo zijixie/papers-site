@@ -7,7 +7,9 @@ import os
 import shutil
 import subprocess
 import tempfile
+import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
@@ -19,22 +21,37 @@ from backend import server
 QUEUE_BRANCH = os.getenv("PAPERS_QUEUE_BRANCH", "upload-queue")
 QUEUE_DIR = Path(os.getenv("PAPERS_QUEUE_DIR", server.REPO.parent / "papers-site-upload-queue")).resolve()
 POLL_SECONDS = int(os.getenv("PAPERS_QUEUE_POLL_SECONDS", "5"))
+MAX_WORKERS = int(os.getenv("PAPERS_QUEUE_WORKERS", "3"))
 OWNER = os.getenv("PAPERS_GITHUB_OWNER", "zijixie")
 REPO_NAME = os.getenv("PAPERS_GITHUB_REPO", "papers-site")
 API_ROOT = f"https://api.github.com/repos/{OWNER}/{REPO_NAME}"
+publish_lock = threading.Lock()
+queue_lock = threading.Lock()
+active_jobs: set[str] = set()
+active_lock = threading.Lock()
 
 
 def main() -> int:
     ensure_queue_clone()
+    executor = ThreadPoolExecutor(max_workers=MAX_WORKERS)
     while True:
         try:
             sync_queue()
             for job_dir in sorted((QUEUE_DIR / "incoming").glob("job_*")):
-                if job_dir.is_dir() and not is_done(job_dir.name):
-                    process_queue_job(job_dir)
+                if job_dir.is_dir() and should_submit(job_dir.name):
+                    with active_lock:
+                        active_jobs.add(job_dir.name)
+                    executor.submit(process_queue_job, job_dir)
         except Exception as exc:
             print(f"[queue-worker] error: {exc}", flush=True)
         time.sleep(POLL_SECONDS)
+
+
+def should_submit(job_id: str) -> bool:
+    if is_done(job_id):
+        return False
+    with active_lock:
+        return job_id not in active_jobs
 
 
 def ensure_queue_clone() -> None:
@@ -68,11 +85,18 @@ def process_queue_job(job_dir: Path) -> None:
         def progress_cb(progress: int, message: str) -> None:
             write_status(job_id, "translating", "翻译中", progress, message)
 
-        url = server.translate_pdf_to_site(input_pdf, theme, progress_cb=progress_cb)
+        prepared = server.prepare_pdf_translation(input_pdf, progress_cb=progress_cb)
+        write_status(job_id, "deploying", "部署中", 90, "正在生成网页并部署到 GitHub Pages。")
+        with publish_lock:
+            sync_main()
+            url = server.publish_pdf_translation(input_pdf, theme, prepared)
         write_status(job_id, "complete", "完成", 100, "新论文页面已生成并部署。", url=url)
         mark_done(job_id)
     except Exception as exc:
         write_status(job_id, "failed", "失败", 100, str(exc))
+    finally:
+        with active_lock:
+            active_jobs.discard(job_id)
 
 
 def sync_main() -> None:
@@ -106,12 +130,13 @@ def write_status(
 
 
 def mark_done(job_id: str) -> None:
-    done_path = QUEUE_DIR / "done" / f"{job_id}.json"
-    done_path.parent.mkdir(parents=True, exist_ok=True)
-    done_path.write_text(json.dumps({"job_id": job_id, "done_at": int(time.time())}, indent=2) + "\n", encoding="utf-8")
-    run(["git", "add", str(done_path.relative_to(QUEUE_DIR))], cwd=QUEUE_DIR)
-    run(["git", "commit", "-m", f"Mark {job_id} done"], cwd=QUEUE_DIR, allow_fail=True)
-    server.git_push_branch(QUEUE_DIR, QUEUE_BRANCH)
+    with queue_lock:
+        done_path = QUEUE_DIR / "done" / f"{job_id}.json"
+        done_path.parent.mkdir(parents=True, exist_ok=True)
+        done_path.write_text(json.dumps({"job_id": job_id, "done_at": int(time.time())}, indent=2) + "\n", encoding="utf-8")
+        run(["git", "add", str(done_path.relative_to(QUEUE_DIR))], cwd=QUEUE_DIR)
+        run(["git", "commit", "-m", f"Mark {job_id} done"], cwd=QUEUE_DIR, allow_fail=True)
+        server.git_push_branch(QUEUE_DIR, QUEUE_BRANCH)
 
 
 def is_done(job_id: str) -> bool:

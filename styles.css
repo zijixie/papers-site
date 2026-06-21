@@ -575,6 +575,33 @@ nav .nav-links a.active { background: rgba(255,255,255,0.18); color: #fff; font-
 .status-panel.failed #status-bar { background: var(--danger); }
 .result-link { display: inline-block; margin-top: 0.8rem; }
 
+.jobs-list {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 1rem;
+}
+
+.job-row {
+  display: grid;
+  gap: 0.2rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.65rem 0.75rem;
+  background: #f8f9fb;
+  font-size: 0.78rem;
+}
+
+.job-row strong {
+  color: var(--navy);
+  font-size: 0.82rem;
+  overflow-wrap: anywhere;
+}
+
+.job-row span { color: var(--accent); font-weight: 700; }
+.job-row em { color: var(--text-muted); font-style: normal; line-height: 1.5; }
+.job-row a { color: var(--navy); font-weight: 700; text-decoration: none; }
+.job-row a:hover { text-decoration: underline; }
+
 /* FINDINGS GRID */
 .findings-grid {
   display: grid;

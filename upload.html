@@ -40,8 +40,8 @@
       </label>
 
       <label>
-        <span>PDF 文件</span>
-        <input id="pdf" name="pdf" type="file" accept="application/pdf,.pdf" required>
+        <span>PDF 文件（1-5 个）</span>
+        <input id="pdf" name="pdf" type="file" accept="application/pdf,.pdf" multiple required>
       </label>
 
       <button id="submit-btn" type="submit">开始翻译</button>
@@ -55,6 +55,7 @@
       <div class="status-track"><div id="status-bar"></div></div>
       <p id="status-message"></p>
       <a id="result-link" class="result-link" href="#" target="_blank" rel="noreferrer" hidden>打开新论文页面</a>
+      <div id="jobs-list" class="jobs-list"></div>
     </div>
   </section>
 </main>
@@ -72,6 +73,7 @@
   const bar = document.getElementById("status-bar");
   const message = document.getElementById("status-message");
   const link = document.getElementById("result-link");
+  const jobsList = document.getElementById("jobs-list");
   const tokenInput = document.getElementById("github-token");
   const tokenField = document.getElementById("github-token-field");
 
@@ -102,8 +104,10 @@
     failed: 100
   };
 
+  const jobStates = new Map();
+
   function setStatus(data) {
-    const pct = progress[data.status] || 0;
+    const pct = Number.isFinite(data.progress) ? data.progress : (progress[data.status] || 0);
     panel.hidden = false;
     label.textContent = data.label || data.status || "处理中";
     step.textContent = pct + "%";
@@ -114,6 +118,56 @@
       link.href = data.url;
       link.hidden = false;
     }
+  }
+
+  function renderJobs() {
+    if (!jobStates.size) {
+      jobsList.innerHTML = "";
+      return;
+    }
+    jobsList.innerHTML = Array.from(jobStates.values()).map(job => {
+      const safeName = escapeHtml(job.filename || job.job_id || "");
+      const safeLabel = escapeHtml(job.label || job.status || "");
+      const safeMessage = escapeHtml(job.message || "");
+      const url = job.url ? `<a href="${escapeAttr(job.url)}" target="_blank" rel="noreferrer">打开</a>` : "";
+      return `<div class="job-row">
+        <strong>${safeName}</strong>
+        <span>${safeLabel} · ${job.progress || 0}%</span>
+        <em>${safeMessage}</em>
+        ${url}
+      </div>`;
+    }).join("");
+  }
+
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, ch => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    }[ch]));
+  }
+
+  function escapeAttr(value) {
+    return escapeHtml(value).replace(/`/g, "&#96;");
+  }
+
+  function setJobStatus(jobId, data) {
+    const previous = jobStates.get(jobId) || {job_id: jobId};
+    jobStates.set(jobId, Object.assign(previous, data));
+    renderJobs();
+    const jobs = Array.from(jobStates.values());
+    const done = jobs.filter(job => job.status === "complete" || job.status === "failed").length;
+    const complete = jobs.filter(job => job.status === "complete").length;
+    const failed = jobs.filter(job => job.status === "failed").length;
+    const avg = Math.round(jobs.reduce((sum, job) => sum + (job.progress || 0), 0) / Math.max(jobs.length, 1));
+    setStatus({
+      status: failed && done === jobs.length ? "failed" : done === jobs.length ? "complete" : "translating",
+      label: `${done}/${jobs.length} 完成`,
+      message: `成功 ${complete} 个，失败 ${failed} 个。`,
+      progress: avg
+    });
   }
 
   function githubHeaders() {
@@ -179,12 +233,12 @@
         headers: githubHeaders()
       });
       if (res.status === 404) {
-        setStatus({status: "queued", label: "排队中", message: "PDF 已提交，等待本机处理。"});
+        setJobStatus(jobId, {status: "queued", label: "排队中", progress: 8, message: "PDF 已提交，等待本机处理。"});
       } else {
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || "状态查询失败");
         const status = JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\s/g, "")))));
-        setStatus(status);
+        setJobStatus(jobId, status);
         if (status.status === "complete" || status.status === "failed") return;
       }
       await new Promise(resolve => setTimeout(resolve, 5000));
@@ -209,23 +263,30 @@
       localStorage.setItem("papers_github_token", tokenInput.value.trim());
       await ensureQueueBranch();
 
-      const file = document.getElementById("pdf").files[0];
+      const files = Array.from(document.getElementById("pdf").files);
+      if (files.length < 1 || files.length > 5) {
+        throw new Error("请一次选择 1-5 个 PDF 文件。");
+      }
       const theme = document.getElementById("theme").value;
-      const jobId = "job_" + new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 14) + "_" + Math.random().toString(36).slice(2, 8);
-      const dir = `incoming/${jobId}`;
-      const pdfBase64 = arrayBufferToBase64(await file.arrayBuffer());
-      const job = {
-        job_id: jobId,
-        theme,
-        filename: file.name,
-        created_at: new Date().toISOString()
-      };
-      const jobBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(job, null, 2) + "\n")));
-
-      await putGithubFile(`${dir}/input.pdf`, pdfBase64, `Upload PDF for ${jobId}`);
-      await putGithubFile(`${dir}/job.json`, jobBase64, `Create translation job ${jobId}`);
-      setStatus({status: "queued", label: "排队中", message: "PDF 已提交，等待本机 worker 处理。"});
-      await poll(jobId);
+      const jobIds = [];
+      for (const file of files) {
+        const jobId = "job_" + new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 14) + "_" + Math.random().toString(36).slice(2, 8);
+        jobIds.push(jobId);
+        setJobStatus(jobId, {job_id: jobId, filename: file.name, status: "uploading", label: "上传中", progress: 15, message: "正在提交到 GitHub 队列。"});
+        const dir = `incoming/${jobId}`;
+        const pdfBase64 = arrayBufferToBase64(await file.arrayBuffer());
+        const job = {
+          job_id: jobId,
+          theme,
+          filename: file.name,
+          created_at: new Date().toISOString()
+        };
+        const jobBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(job, null, 2) + "\n")));
+        await putGithubFile(`${dir}/input.pdf`, pdfBase64, `Upload PDF for ${jobId}`);
+        await putGithubFile(`${dir}/job.json`, jobBase64, `Create translation job ${jobId}`);
+        setJobStatus(jobId, {job_id: jobId, filename: file.name, status: "queued", label: "排队中", progress: 8, message: "PDF 已提交，等待本机 worker 处理。"});
+      }
+      await Promise.all(jobIds.map(poll));
     } catch (err) {
       setStatus({status: "failed", label: "失败", message: err.message || String(err)});
     } finally {

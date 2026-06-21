@@ -46,6 +46,7 @@ PUBLIC_URL = os.getenv("PAPERS_SITE_PUBLIC_URL", "https://zijixie.github.io/pape
 JOBS_DIR = Path(os.getenv("PAPERS_SITE_JOBS_DIR", REPO / ".upload_jobs")).resolve()
 METRICS_PATH = Path(os.getenv("PAPERS_SITE_METRICS_JSON", Path(__file__).with_name("metrics.json"))).resolve()
 GIT_PUSH = os.getenv("PAPERS_SITE_GIT_PUSH", "0") == "1"
+LLM_TIMEOUT_SECONDS = int(os.getenv("PAPERS_LLM_TIMEOUT_SECONDS", "300"))
 
 STATUS_LABELS = {
     "queued": "排队中",
@@ -189,7 +190,7 @@ def process_job(job_id: str, input_pdf: Path, theme: str) -> None:
             job.error = str(exc)
 
 
-def translate_pdf_to_site(input_pdf: Path, theme: str, progress_cb: Any | None = None) -> str:
+def prepare_pdf_translation(input_pdf: Path, progress_cb: Any | None = None) -> dict[str, Any]:
     paragraphs = extract_pdf_paragraphs(input_pdf)
     if not paragraphs:
         raise RuntimeError("没有从 PDF 中抽取到可翻译文本。")
@@ -199,15 +200,34 @@ def translate_pdf_to_site(input_pdf: Path, theme: str, progress_cb: Any | None =
     metrics = lookup_metrics(verified)
     translations = translate_paragraphs(paragraphs, progress_cb=progress_cb)
     metadata = llm_refine_metadata(metadata, verified, metrics, paragraphs, translations)
+    return {
+        "paragraphs": paragraphs,
+        "metadata": metadata,
+        "verified": verified,
+        "metrics": metrics,
+        "translations": translations,
+    }
 
+
+def publish_pdf_translation(input_pdf: Path, theme: str, prepared: dict[str, Any]) -> str:
     paper_no = next_paper_number()
     paper_file = f"paper{paper_no:02d}.html"
     save_original_pdf(input_pdf, paper_no)
+    metadata = prepared["metadata"]
+    verified = prepared["verified"]
+    metrics = prepared["metrics"]
+    paragraphs = prepared["paragraphs"]
+    translations = prepared["translations"]
     page_html = render_paper_html(paper_no, theme, metadata, verified, metrics, paragraphs, translations)
     (REPO / paper_file).write_text(page_html, encoding="utf-8")
     update_index(paper_no, theme, paper_file, metadata, verified, metrics)
     commit_and_maybe_push(paper_no, metadata)
     return f"{PUBLIC_URL}/{paper_file}"
+
+
+def translate_pdf_to_site(input_pdf: Path, theme: str, progress_cb: Any | None = None) -> str:
+    prepared = prepare_pdf_translation(input_pdf, progress_cb=progress_cb)
+    return publish_pdf_translation(input_pdf, theme, prepared)
 
 
 def extract_pdf_paragraphs(pdf_path: Path) -> list[str]:
@@ -276,7 +296,7 @@ def llm_chat(messages: list[dict[str, str]], temperature: float = 0.2, json_mode
     if json_mode:
         payload["response_format"] = {"type": "json_object"}
     try:
-        with hard_timeout(30):
+        with hard_timeout(LLM_TIMEOUT_SECONDS):
             res = requests.post(
                 endpoint,
                 headers={
@@ -284,7 +304,7 @@ def llm_chat(messages: list[dict[str, str]], temperature: float = 0.2, json_mode
                     "Content-Type": "application/json",
                 },
                 json=payload,
-                timeout=(10, 25),
+                timeout=(10, max(20, LLM_TIMEOUT_SECONDS - 5)),
             )
             if res.status_code >= 400 and json_mode:
                 payload.pop("response_format", None)
@@ -295,10 +315,10 @@ def llm_chat(messages: list[dict[str, str]], temperature: float = 0.2, json_mode
                         "Content-Type": "application/json",
                     },
                     json=payload,
-                    timeout=(10, 25),
+                    timeout=(10, max(20, LLM_TIMEOUT_SECONDS - 5)),
                 )
     except TimeoutError:
-        raise RuntimeError("LLM request timed out after 30 seconds.")
+        raise RuntimeError(f"LLM request timed out after {LLM_TIMEOUT_SECONDS} seconds.")
     res.raise_for_status()
     data = res.json()
     return (data.get("choices", [{}])[0].get("message", {}).get("content") or "").strip()
