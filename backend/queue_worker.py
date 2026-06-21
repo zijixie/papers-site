@@ -133,10 +133,13 @@ def mark_done(job_id: str) -> None:
     with queue_lock:
         done_path = QUEUE_DIR / "done" / f"{job_id}.json"
         done_path.parent.mkdir(parents=True, exist_ok=True)
-        done_path.write_text(json.dumps({"job_id": job_id, "done_at": int(time.time())}, indent=2) + "\n", encoding="utf-8")
-        run(["git", "add", str(done_path.relative_to(QUEUE_DIR))], cwd=QUEUE_DIR)
-        run(["git", "commit", "-m", f"Mark {job_id} done"], cwd=QUEUE_DIR, allow_fail=True)
-        server.git_push_branch(QUEUE_DIR, QUEUE_BRANCH)
+        payload = {"job_id": job_id, "done_at": int(time.time())}
+        done_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+        put_github_file(
+            f"done/{job_id}.json",
+            json.dumps(payload, indent=2) + "\n",
+            f"Mark {job_id} done",
+        )
 
 
 def is_done(job_id: str) -> bool:
