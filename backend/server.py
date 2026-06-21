@@ -189,7 +189,7 @@ def process_job(job_id: str, input_pdf: Path, theme: str) -> None:
             job.error = str(exc)
 
 
-def translate_pdf_to_site(input_pdf: Path, theme: str) -> str:
+def translate_pdf_to_site(input_pdf: Path, theme: str, progress_cb: Any | None = None) -> str:
     paragraphs = extract_pdf_paragraphs(input_pdf)
     if not paragraphs:
         raise RuntimeError("没有从 PDF 中抽取到可翻译文本。")
@@ -197,7 +197,7 @@ def translate_pdf_to_site(input_pdf: Path, theme: str) -> str:
     metadata = llm_extract_metadata(paragraphs)
     verified = verify_publication(metadata)
     metrics = lookup_metrics(verified)
-    translations = translate_paragraphs(paragraphs)
+    translations = translate_paragraphs(paragraphs, progress_cb=progress_cb)
     metadata = llm_refine_metadata(metadata, verified, metrics, paragraphs, translations)
 
     paper_no = next_paper_number()
@@ -263,7 +263,7 @@ def client() -> OpenAI:
     key = os.getenv("LLM_API_KEY") or os.getenv("DASHSCOPE_API_KEY")
     if not key:
         raise RuntimeError("缺少 LLM_API_KEY 或 DASHSCOPE_API_KEY 环境变量。")
-    return OpenAI(api_key=key, base_url=BASE_URL)
+    return OpenAI(api_key=key, base_url=BASE_URL, timeout=60.0, max_retries=1)
 
 
 def chat_json(messages: list[dict[str, str]], temperature: float = 0.1) -> Any:
@@ -345,10 +345,13 @@ def llm_extract_metadata(paragraphs: list[str]) -> dict[str, Any]:
     return data if isinstance(data, dict) else {}
 
 
-def translate_paragraphs(paragraphs: list[str]) -> list[str]:
+def translate_paragraphs(paragraphs: list[str], progress_cb: Any | None = None) -> list[str]:
     translations: list[str] = []
-    for i in range(0, len(paragraphs), 18):
-        chunk = paragraphs[i:i + 18]
+    for i in range(0, len(paragraphs), 6):
+        chunk = paragraphs[i:i + 6]
+        if progress_cb:
+            progress = 42 + int((i / max(len(paragraphs), 1)) * 36)
+            progress_cb(progress, f"正在翻译第 {i + 1}-{min(i + len(chunk), len(paragraphs))} 段，共 {len(paragraphs)} 段。")
         try:
             data = chat_json([
                 {"role": "system", "content": (
@@ -362,7 +365,7 @@ def translate_paragraphs(paragraphs: list[str]) -> list[str]:
             data = {}
         arr = data.get("translations") if isinstance(data, dict) else None
         if not isinstance(arr, list) or len(arr) != len(chunk):
-            arr = [translate_one(p) for p in chunk]
+            arr = [translate_one_text(p) for p in chunk]
         translations.extend(str(x) for x in arr)
     return translations
 
@@ -380,6 +383,14 @@ def translate_one(text: str) -> str:
             {"role": "user", "content": text},
         ], temperature=0.2)
         return translated or text
+
+
+def translate_one_text(text: str) -> str:
+    translated = chat_text([
+        {"role": "system", "content": "Translate the academic paragraph to Simplified Chinese. Return only the translated paragraph, no JSON."},
+        {"role": "user", "content": text},
+    ], temperature=0.2)
+    return translated or text
 
 
 def llm_refine_metadata(

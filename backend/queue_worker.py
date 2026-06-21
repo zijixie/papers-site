@@ -65,7 +65,10 @@ def process_queue_job(job_dir: Path) -> None:
         write_status(job_id, "extracting", "抽取中", 30, "正在从 PDF 抽取正文、标题和段落。")
         sync_main()
         write_status(job_id, "translating", "翻译中", 64, "正在核验出版信息并翻译全文。")
-        url = server.translate_pdf_to_site(input_pdf, theme)
+        def progress_cb(progress: int, message: str) -> None:
+            write_status(job_id, "translating", "翻译中", progress, message)
+
+        url = server.translate_pdf_to_site(input_pdf, theme, progress_cb=progress_cb)
         write_status(job_id, "complete", "完成", 100, "新论文页面已生成并部署。", url=url)
         mark_done(job_id)
     except Exception as exc:
