@@ -6,6 +6,7 @@ import json
 import os
 import shutil
 import subprocess
+import tempfile
 import time
 from pathlib import Path
 from typing import Any
@@ -41,11 +42,12 @@ def ensure_queue_clone() -> None:
         return
     if QUEUE_DIR.exists():
         shutil.rmtree(QUEUE_DIR)
-    run(["git", "clone", "--branch", QUEUE_BRANCH, "origin", str(QUEUE_DIR)], cwd=server.REPO)
+    remote = run(["git", "remote", "get-url", "origin"], cwd=server.REPO).stdout.strip()
+    run_git(["git", "clone", "--branch", QUEUE_BRANCH, remote, str(QUEUE_DIR)], cwd=server.REPO)
 
 
 def sync_queue() -> None:
-    run(["git", "fetch", "origin", QUEUE_BRANCH], cwd=QUEUE_DIR)
+    run_git(["git", "fetch", "origin", QUEUE_BRANCH], cwd=QUEUE_DIR)
     run(["git", "reset", "--hard", f"origin/{QUEUE_BRANCH}"], cwd=QUEUE_DIR)
 
 
@@ -71,7 +73,7 @@ def process_queue_job(job_dir: Path) -> None:
 
 
 def sync_main() -> None:
-    run(["git", "fetch", "origin", "main"], cwd=server.REPO)
+    run_git(["git", "fetch", "origin", "main"], cwd=server.REPO)
     run(["git", "reset", "--hard", "origin/main"], cwd=server.REPO)
 
 
@@ -147,6 +149,31 @@ def run(cmd: list[str], cwd: Path, allow_fail: bool = False) -> subprocess.Compl
     if proc.returncode and not allow_fail:
         raise RuntimeError(f"{' '.join(cmd)} failed:\n{proc.stdout}\n{proc.stderr}")
     return proc
+
+
+def run_git(cmd: list[str], cwd: Path, allow_fail: bool = False) -> subprocess.CompletedProcess[str]:
+    token = os.getenv("GITHUB_TOKEN")
+    if not token:
+        return run(cmd, cwd, allow_fail=allow_fail)
+    with tempfile.TemporaryDirectory(prefix="papers-git-") as tmpdir:
+        askpass = Path(tmpdir) / "askpass.sh"
+        askpass.write_text(
+            "#!/usr/bin/env sh\n"
+            "case \"$1\" in\n"
+            "*Username*) printf '%s\\n' \"x-access-token\" ;;\n"
+            "*Password*) printf '%s\\n' \"$GITHUB_TOKEN\" ;;\n"
+            "*) printf '\\n' ;;\n"
+            "esac\n",
+            encoding="utf-8",
+        )
+        askpass.chmod(0o700)
+        env = os.environ.copy()
+        env["GIT_ASKPASS"] = str(askpass)
+        env["GIT_TERMINAL_PROMPT"] = "0"
+        proc = subprocess.run(cmd, cwd=cwd, text=True, capture_output=True, env=env)
+        if proc.returncode and not allow_fail:
+            raise RuntimeError(f"{' '.join(cmd)} failed:\n{proc.stdout}\n{proc.stderr}")
+        return proc
 
 
 if __name__ == "__main__":
