@@ -1,8 +1,8 @@
 {
   "job_id": "job_20260621115618_3xmm2e",
-  "status": "translating",
-  "label": "翻译中",
-  "progress": 75,
-  "message": "正在翻译第 73-78 段，共 78 段。",
-  "updated_at": 1782046052
+  "status": "deploying",
+  "label": "部署中",
+  "progress": 90,
+  "message": "正在生成网页并部署到 GitHub Pages。",
+  "updated_at": 1782046054
 }
