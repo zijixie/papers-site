@@ -5,6 +5,7 @@ import html
 import json
 import os
 import re
+import signal
 import shutil
 import subprocess
 import tempfile
@@ -274,29 +275,52 @@ def llm_chat(messages: list[dict[str, str]], temperature: float = 0.2, json_mode
     }
     if json_mode:
         payload["response_format"] = {"type": "json_object"}
-    res = requests.post(
-        endpoint,
-        headers={
-            "Authorization": f"Bearer {llm_key()}",
-            "Content-Type": "application/json",
-        },
-        json=payload,
-        timeout=(10, 45),
-    )
-    if res.status_code >= 400 and json_mode:
-        payload.pop("response_format", None)
-        res = requests.post(
-            endpoint,
-            headers={
-                "Authorization": f"Bearer {llm_key()}",
-                "Content-Type": "application/json",
-            },
-            json=payload,
-            timeout=(10, 45),
-        )
+    try:
+        with hard_timeout(30):
+            res = requests.post(
+                endpoint,
+                headers={
+                    "Authorization": f"Bearer {llm_key()}",
+                    "Content-Type": "application/json",
+                },
+                json=payload,
+                timeout=(10, 25),
+            )
+            if res.status_code >= 400 and json_mode:
+                payload.pop("response_format", None)
+                res = requests.post(
+                    endpoint,
+                    headers={
+                        "Authorization": f"Bearer {llm_key()}",
+                        "Content-Type": "application/json",
+                    },
+                    json=payload,
+                    timeout=(10, 25),
+                )
+    except TimeoutError:
+        raise RuntimeError("LLM request timed out after 30 seconds.")
     res.raise_for_status()
     data = res.json()
     return (data.get("choices", [{}])[0].get("message", {}).get("content") or "").strip()
+
+
+class hard_timeout:
+    def __init__(self, seconds: int):
+        self.seconds = seconds
+        self.previous: Any = None
+
+    def __enter__(self) -> None:
+        self.previous = signal.getsignal(signal.SIGALRM)
+        signal.signal(signal.SIGALRM, self._raise_timeout)
+        signal.alarm(self.seconds)
+
+    def __exit__(self, exc_type: Any, exc: Any, tb: Any) -> None:
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, self.previous)
+
+    @staticmethod
+    def _raise_timeout(signum: int, frame: Any) -> None:
+        raise TimeoutError()
 
 
 def chat_json(messages: list[dict[str, str]], temperature: float = 0.1) -> Any:
@@ -400,11 +424,14 @@ def translate_one(text: str) -> str:
 
 
 def translate_one_text(text: str) -> str:
-    translated = chat_text([
-        {"role": "system", "content": "Translate the academic paragraph to Simplified Chinese. Return only the translated paragraph, no JSON."},
-        {"role": "user", "content": text},
-    ], temperature=0.2)
-    return translated or text
+    try:
+        translated = chat_text([
+            {"role": "system", "content": "Translate the academic paragraph to Simplified Chinese. Return only the translated paragraph, no JSON."},
+            {"role": "user", "content": text},
+        ], temperature=0.2)
+        return translated or text
+    except Exception:
+        return text
 
 
 def llm_refine_metadata(
