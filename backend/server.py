@@ -190,7 +190,7 @@ def process_job(job_id: str, input_pdf: Path, theme: str) -> None:
             job.error = str(exc)
 
 
-def prepare_pdf_translation(input_pdf: Path, progress_cb: Any | None = None) -> dict[str, Any]:
+def prepare_pdf_translation(input_pdf: Path, progress_cb: Any | None = None, fallback_title: str | None = None) -> dict[str, Any]:
     paragraphs = extract_pdf_paragraphs(input_pdf)
     if not paragraphs:
         raise RuntimeError("没有从 PDF 中抽取到可翻译文本。")
@@ -200,6 +200,7 @@ def prepare_pdf_translation(input_pdf: Path, progress_cb: Any | None = None) -> 
     metrics = lookup_metrics(verified)
     translations = translate_paragraphs(paragraphs, progress_cb=progress_cb)
     metadata = llm_refine_metadata(metadata, verified, metrics, paragraphs, translations)
+    apply_fallback_title(metadata, verified, fallback_title)
     return {
         "paragraphs": paragraphs,
         "metadata": metadata,
@@ -226,8 +227,17 @@ def publish_pdf_translation(input_pdf: Path, theme: str, prepared: dict[str, Any
 
 
 def translate_pdf_to_site(input_pdf: Path, theme: str, progress_cb: Any | None = None) -> str:
-    prepared = prepare_pdf_translation(input_pdf, progress_cb=progress_cb)
+    prepared = prepare_pdf_translation(input_pdf, progress_cb=progress_cb, fallback_title=input_pdf.name)
     return publish_pdf_translation(input_pdf, theme, prepared)
+
+
+def apply_fallback_title(metadata: dict[str, Any], verified: dict[str, Any], fallback_title: str | None) -> None:
+    title = text_value(metadata.get("title_original") or verified.get("title")).strip()
+    if title and not re.fullmatch(r"paper\s*\d+", title, flags=re.I):
+        return
+    if fallback_title:
+        metadata["title_original"] = Path(fallback_title).name
+        metadata["title_zh"] = Path(fallback_title).name
 
 
 def extract_pdf_paragraphs(pdf_path: Path) -> list[str]:

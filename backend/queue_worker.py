@@ -77,6 +77,7 @@ def process_queue_job(job_dir: Path) -> None:
 
     job = json.loads(job_json.read_text(encoding="utf-8"))
     theme = job.get("theme") or "新主题"
+    filename = job.get("filename") or input_pdf.name
 
     try:
         write_status(job_id, "extracting", "抽取中", 30, "正在从 PDF 抽取正文、标题和段落。")
@@ -85,7 +86,7 @@ def process_queue_job(job_dir: Path) -> None:
         def progress_cb(progress: int, message: str) -> None:
             write_status(job_id, "translating", "翻译中", progress, message)
 
-        prepared = server.prepare_pdf_translation(input_pdf, progress_cb=progress_cb)
+        prepared = server.prepare_pdf_translation(input_pdf, progress_cb=progress_cb, fallback_title=filename)
         write_status(job_id, "deploying", "部署中", 90, "正在生成网页并部署到 GitHub Pages。")
         with publish_lock:
             sync_main()
@@ -181,7 +182,7 @@ def put_github_file(path: str, text: str, message: str) -> None:
 
 
 def run(cmd: list[str], cwd: Path, allow_fail: bool = False) -> subprocess.CompletedProcess[str]:
-    proc = subprocess.run(cmd, cwd=cwd, text=True, capture_output=True)
+    proc = subprocess.run(cmd, cwd=cwd, text=True, capture_output=True, timeout=60)
     if proc.returncode and not allow_fail:
         raise RuntimeError(f"{' '.join(cmd)} failed:\n{proc.stdout}\n{proc.stderr}")
     return proc
@@ -206,7 +207,7 @@ def run_git(cmd: list[str], cwd: Path, allow_fail: bool = False) -> subprocess.C
         env = os.environ.copy()
         env["GIT_ASKPASS"] = str(askpass)
         env["GIT_TERMINAL_PROMPT"] = "0"
-        proc = subprocess.run(cmd, cwd=cwd, text=True, capture_output=True, env=env)
+        proc = subprocess.run(cmd, cwd=cwd, text=True, capture_output=True, env=env, timeout=60)
         if proc.returncode and not allow_fail:
             raise RuntimeError(f"{' '.join(cmd)} failed:\n{proc.stdout}\n{proc.stderr}")
         return proc
