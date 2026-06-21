@@ -248,8 +248,14 @@ def publish_pdf_translation(input_pdf: Path, theme: str, prepared: dict[str, Any
     return f"{PUBLIC_URL}/{paper_file}"
 
 
-def translate_pdf_to_site(input_pdf: Path, theme: str, progress_cb: Any | None = None) -> str:
-    prepared = prepare_pdf_translation(input_pdf, progress_cb=progress_cb, fallback_title=input_pdf.name)
+def translate_pdf_to_site(
+    input_pdf: Path,
+    theme: str,
+    progress_cb: Any | None = None,
+    display_name: str | None = None,
+) -> str:
+    fallback = display_name or input_pdf.name
+    prepared = prepare_pdf_translation(input_pdf, progress_cb=progress_cb, fallback_title=fallback)
     return publish_pdf_translation(input_pdf, theme, prepared)
 
 

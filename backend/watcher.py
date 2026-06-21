@@ -107,11 +107,20 @@ def git_pull() -> None:
         print(f"[watcher] git pull: {result.stderr.strip() or result.stdout.strip()}", flush=True)
 
 
-def extract_theme(stem: str) -> str:
+def extract_theme_and_name(stem: str) -> tuple[str, str]:
+    """Return (theme, display_name) from pending filename stem."""
     for slug, theme in THEME_SLUGS.items():
-        if stem.startswith(slug + "_"):
-            return theme
-    return "新主题"
+        prefix = slug + "_"
+        if stem.startswith(prefix):
+            rest = stem[len(prefix):]
+            # Remove leading timestamp digits and underscore: 1234567890_OriginalName
+            parts = rest.split("_", 1)
+            if len(parts) == 2 and parts[0].isdigit():
+                rest = parts[1]
+            # Replace underscores with spaces for display
+            display = rest.replace("_", " ").replace(".pdf", "")
+            return theme, display
+    return "新主题", stem.replace("_", " ")
 
 
 def process_pending(server: object) -> None:
@@ -120,8 +129,8 @@ def process_pending(server: object) -> None:
         return
 
     for pdf_path in pdfs:
-        theme = extract_theme(pdf_path.stem)
-        print(f"[watcher] Found: {pdf_path.name} → theme: {theme}", flush=True)
+        theme, display_name = extract_theme_and_name(pdf_path.stem)
+        print(f"[watcher] Found: {pdf_path.name} → theme: {theme}, title: {display_name}", flush=True)
 
         # Copy to gitignored temp dir so we can delete the pending file
         TEMP_DIR.mkdir(exist_ok=True)
@@ -133,7 +142,7 @@ def process_pending(server: object) -> None:
 
         try:
             print(f"[watcher] Translating: {temp_pdf.name}", flush=True)
-            server.translate_pdf_to_site(temp_pdf, theme)  # commits + pushes
+            server.translate_pdf_to_site(temp_pdf, theme, display_name=display_name)  # commits + pushes
             print(f"[watcher] Done: {pdf_path.name}", flush=True)
         except Exception as exc:
             print(f"[watcher] Error processing {pdf_path.name}: {exc}", flush=True)
