@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>上传论文 · 设计研究文献库</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<nav>
+  <a class="brand" href="index.html"><span class="brand-accent">&#9670;</span> 设计研究文献库</a>
+  <div class="nav-links">
+    <a href="index.html">目录</a>
+    <a href="upload.html" class="active">上传</a>
+  </div>
+</nav>
+
+<main class="upload-shell">
+  <section class="upload-panel">
+    <div class="upload-kicker">Private PDF Translation</div>
+    <h1>上传论文</h1>
+    <form id="upload-form" class="upload-form">
+      <label>
+        <span>访问密码</span>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+      </label>
+
+      <label>
+        <span>主题分类</span>
+        <select id="theme" name="theme" required>
+          <option value="设计介入跨学科协作">设计介入跨学科协作</option>
+          <option value="设计转译">设计转译</option>
+          <option value="新主题">新主题</option>
+        </select>
+      </label>
+
+      <label>
+        <span>PDF 文件</span>
+        <input id="pdf" name="pdf" type="file" accept="application/pdf,.pdf" required>
+      </label>
+
+      <button id="submit-btn" type="submit">开始翻译</button>
+    </form>
+
+    <div id="status-panel" class="status-panel" hidden>
+      <div class="status-head">
+        <span id="status-label">等待上传</span>
+        <span id="status-step">0%</span>
+      </div>
+      <div class="status-track"><div id="status-bar"></div></div>
+      <p id="status-message"></p>
+      <a id="result-link" class="result-link" href="#" target="_blank" rel="noreferrer" hidden>打开新论文页面</a>
+    </div>
+  </section>
+</main>
+
+<script src="upload-config.js"></script>
+<script>
+(function () {
+  const configuredApi = window.PAPERS_UPLOAD_API || "";
+  const API = configuredApi ? configuredApi.replace(/\/$/, "") : "";
+  const form = document.getElementById("upload-form");
+  const btn = document.getElementById("submit-btn");
+  const panel = document.getElementById("status-panel");
+  const label = document.getElementById("status-label");
+  const step = document.getElementById("status-step");
+  const bar = document.getElementById("status-bar");
+  const message = document.getElementById("status-message");
+  const link = document.getElementById("result-link");
+
+  const progress = {
+    queued: 8,
+    uploading: 15,
+    extracting: 30,
+    verifying: 42,
+    translating: 64,
+    rendering: 78,
+    deploying: 90,
+    complete: 100,
+    failed: 100
+  };
+
+  function setStatus(data) {
+    const pct = progress[data.status] || 0;
+    panel.hidden = false;
+    label.textContent = data.label || data.status || "处理中";
+    step.textContent = pct + "%";
+    bar.style.width = pct + "%";
+    message.textContent = data.message || "";
+    panel.classList.toggle("failed", data.status === "failed");
+    if (data.url) {
+      link.href = data.url;
+      link.hidden = false;
+    }
+  }
+
+  async function poll(jobId) {
+    for (;;) {
+      const res = await fetch(API + "/api/jobs/" + encodeURIComponent(jobId));
+      const data = await res.json();
+      setStatus(data);
+      if (data.status === "complete" || data.status === "failed") return;
+      await new Promise(resolve => setTimeout(resolve, 2500));
+    }
+  }
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!API) {
+      setStatus({status: "failed", label: "配置缺失", message: "upload-config.js 里还没有配置 Cloudflare Tunnel 后端地址。"});
+      return;
+    }
+
+    btn.disabled = true;
+    link.hidden = true;
+    setStatus({status: "uploading", label: "上传中", message: "正在上传 PDF。"});
+
+    const fd = new FormData();
+    fd.append("password", document.getElementById("password").value);
+    fd.append("theme", document.getElementById("theme").value);
+    fd.append("pdf", document.getElementById("pdf").files[0]);
+
+    try {
+      const res = await fetch(API + "/api/jobs", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "上传失败");
+      await poll(data.job_id);
+    } catch (err) {
+      setStatus({status: "failed", label: "失败", message: err.message || String(err)});
+    } finally {
+      btn.disabled = false;
+    }
+  });
+})();
+</script>
+</body>
+</html>

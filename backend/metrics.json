@@ -1,0 +1,4 @@
+{
+  "_comment": "Trusted venue metrics go here. The backend will not invent Q rankings, top percentile, IF, or core-journal labels when no record matches.",
+  "venues": []
+}

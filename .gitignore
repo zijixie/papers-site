@@ -1,0 +1,4 @@
+.upload_jobs/
+.env
+__pycache__/
+*.pyc
