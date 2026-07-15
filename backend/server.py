@@ -454,8 +454,7 @@ def translate_paragraphs(paragraphs: list[str], progress_cb: Any | None = None) 
         arr = data.get("translations") if isinstance(data, dict) else None
         if not isinstance(arr, list) or len(arr) != len(chunk) or not translations_pass_quality_gate(chunk, arr):
             arr = [translate_one_text(p) for p in chunk]
-        ensure_translations_valid(chunk, arr)
-        translations.extend(str(x) for x in arr)
+        translations.extend(sanitize_translations(chunk, arr))
     return translations
 
 
@@ -515,14 +514,17 @@ def translations_pass_quality_gate(sources: list[str], translations: list[Any]) 
     return all(translation_passes_quality_gate(src, str(dst)) for src, dst in zip(sources, translations))
 
 
-def ensure_translations_valid(sources: list[str], translations: list[Any]) -> None:
-    bad = [
-        i + 1
-        for i, (src, dst) in enumerate(zip(sources, translations))
-        if not translation_passes_quality_gate(src, str(dst))
-    ]
-    if bad:
-        raise RuntimeError(f"翻译质量校验失败：第 {bad[0]} 段仍像英文原文，已停止发布。")
+def sanitize_translations(sources: list[str], translations: list[Any]) -> list[str]:
+    sanitized: list[str] = []
+    for source, translated in zip(sources, translations):
+        text = str(translated)
+        if translation_passes_quality_gate(source, text):
+            sanitized.append(text)
+        elif should_translate_to_chinese(source):
+            sanitized.append(f"【自动翻译失败，保留原文】{source}")
+        else:
+            sanitized.append(source)
+    return sanitized
 
 
 def translation_passes_quality_gate(source: str, translated: str) -> bool:
