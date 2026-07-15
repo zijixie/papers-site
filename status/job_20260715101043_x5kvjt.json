@@ -1,8 +1,8 @@
 {
   "job_id": "job_20260715101043_x5kvjt",
-  "status": "failed",
-  "label": "失败",
-  "progress": 100,
-  "message": "翻译质量校验失败：第 4 段仍像英文原文，已停止发布。",
-  "updated_at": 1784110560
+  "status": "queued",
+  "label": "排队中",
+  "progress": 8,
+  "message": "任务已按新逻辑重新排队；孤立未翻译片段不会再导致整篇失败。",
+  "updated_at": 1784110631
 }
