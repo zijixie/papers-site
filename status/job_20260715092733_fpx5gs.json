@@ -1,8 +1,8 @@
 {
   "job_id": "job_20260715092733_fpx5gs",
-  "status": "translating",
-  "label": "翻译中",
-  "progress": 77,
-  "message": "正在翻译第 163-163 段，共 163 段。",
-  "updated_at": 1784107719
+  "status": "deploying",
+  "label": "部署中",
+  "progress": 90,
+  "message": "正在生成网页并部署到 GitHub Pages。",
+  "updated_at": 1784107721
 }
