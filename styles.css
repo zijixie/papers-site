@@ -449,6 +449,37 @@ nav .nav-links a.active { background: rgba(255,255,255,0.18); color: #fff; font-
 .lang-col h4 { font-size: 0.9rem; color: var(--navy); margin-bottom: 0.5rem; margin-top: 0.8rem; }
 .lang-col strong { color: var(--navy); }
 
+.pdf-pages-card { overflow: hidden; }
+.pdf-pages-note {
+  margin: 0 0 1rem;
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.7;
+}
+.pdf-page-list {
+  display: grid;
+  gap: 1.2rem;
+}
+.pdf-page-figure {
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f8fafc;
+}
+.pdf-page-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #fff;
+}
+.pdf-page-figure figcaption {
+  padding: 0.45rem 0.7rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  border-top: 1px solid var(--border);
+}
+
 /* UPLOAD */
 .upload-shell {
   min-height: calc(100vh - 60px);

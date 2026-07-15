@@ -4,4 +4,5 @@ python-multipart
 anthropic
 openai
 pymupdf
+pillow
 requests

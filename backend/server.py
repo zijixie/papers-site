@@ -20,6 +20,7 @@ from typing import Any
 import anthropic
 import fitz
 import requests
+from PIL import Image
 from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -440,6 +441,7 @@ def translate_paragraphs(paragraphs: list[str], progress_cb: Any | None = None) 
             data = chat_json([
                 {"role": "system", "content": (
                     "Translate academic paper paragraphs into Simplified Chinese. "
+                    "Do not copy the English source text. Translate complete English sentences into natural Chinese. "
                     "Keep terminology precise, keep citations, formulas, numbers, DOI, and proper nouns unchanged where appropriate. "
                     "Return JSON with key translations, an array with exactly the same length and order as input paragraphs."
                 )},
@@ -448,8 +450,9 @@ def translate_paragraphs(paragraphs: list[str], progress_cb: Any | None = None) 
         except Exception:
             data = {}
         arr = data.get("translations") if isinstance(data, dict) else None
-        if not isinstance(arr, list) or len(arr) != len(chunk):
+        if not isinstance(arr, list) or len(arr) != len(chunk) or not translations_pass_quality_gate(chunk, arr):
             arr = [translate_one_text(p) for p in chunk]
+        ensure_translations_valid(chunk, arr)
         translations.extend(str(x) for x in arr)
     return translations
 
@@ -472,12 +475,66 @@ def translate_one(text: str) -> str:
 def translate_one_text(text: str) -> str:
     try:
         translated = chat_text([
-            {"role": "system", "content": "Translate the academic paragraph to Simplified Chinese. Return only the translated paragraph, no JSON."},
+            {"role": "system", "content": (
+                "Translate the academic paragraph to Simplified Chinese. "
+                "Do not return the English source unchanged. Keep citations, formulas, numbers, and proper nouns where appropriate. "
+                "Return only the translated paragraph, no JSON."
+            )},
             {"role": "user", "content": text},
         ], temperature=0.2)
-        return translated or text
+        if translated and translation_passes_quality_gate(text, translated):
+            return translated
     except Exception:
-        return text
+        pass
+    try:
+        data = chat_json([
+            {"role": "system", "content": (
+                "Translate this academic paragraph into Simplified Chinese. "
+                "The output must contain Chinese for every translatable English sentence. "
+                "Return JSON only: {\"translation\":\"...\"}."
+            )},
+            {"role": "user", "content": text},
+        ], temperature=0.1)
+        translated = str(data.get("translation") or "")
+        if translated and translation_passes_quality_gate(text, translated):
+            return translated
+    except Exception:
+        pass
+    if needs_chinese_translation(text):
+        raise RuntimeError("LLM returned untranslated English text; refusing to publish a broken bilingual page.")
+    return text
+
+
+def translations_pass_quality_gate(sources: list[str], translations: list[Any]) -> bool:
+    return all(translation_passes_quality_gate(src, str(dst)) for src, dst in zip(sources, translations))
+
+
+def ensure_translations_valid(sources: list[str], translations: list[Any]) -> None:
+    bad = [
+        i + 1
+        for i, (src, dst) in enumerate(zip(sources, translations))
+        if not translation_passes_quality_gate(src, str(dst))
+    ]
+    if bad:
+        raise RuntimeError(f"翻译质量校验失败：第 {bad[0]} 段仍像英文原文，已停止发布。")
+
+
+def translation_passes_quality_gate(source: str, translated: str) -> bool:
+    if not needs_chinese_translation(source):
+        return True
+    return cjk_count(translated) >= max(4, min(20, ascii_word_count(source) // 8))
+
+
+def needs_chinese_translation(text: str) -> bool:
+    return ascii_word_count(text) >= 8 and cjk_count(text) < 4
+
+
+def ascii_word_count(text: str) -> int:
+    return len(re.findall(r"[A-Za-z][A-Za-z\-]{1,}", text))
+
+
+def cjk_count(text: str) -> int:
+    return sum(1 for ch in text if "\u4e00" <= ch <= "\u9fff")
 
 
 def llm_refine_metadata(
@@ -633,7 +690,26 @@ def next_paper_number() -> int:
 def save_original_pdf(input_pdf: Path, paper_no: int) -> None:
     target_dir = REPO / "assets" / "papers" / f"paper{paper_no:02d}"
     target_dir.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(input_pdf, target_dir / "original.pdf")
+    target_pdf = target_dir / "original.pdf"
+    if input_pdf.resolve() != target_pdf.resolve():
+        shutil.copy2(input_pdf, target_pdf)
+    render_pdf_page_images(input_pdf, target_dir)
+
+
+def render_pdf_page_images(input_pdf: Path, target_dir: Path) -> None:
+    pages_dir = target_dir / "pages"
+    if pages_dir.exists():
+        shutil.rmtree(pages_dir)
+    pages_dir.mkdir(parents=True, exist_ok=True)
+    doc = fitz.open(input_pdf)
+    try:
+        matrix = fitz.Matrix(1.5, 1.5)
+        for index, page in enumerate(doc, start=1):
+            pix = page.get_pixmap(matrix=matrix, alpha=False)
+            image = Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
+            image.save(pages_dir / f"page-{index:03d}.webp", "WEBP", quality=82, method=4)
+    finally:
+        doc.close()
 
 
 def render_paper_html(
@@ -663,6 +739,7 @@ def render_paper_html(
     sections = sectionize(paragraphs, translations)
     section_html = "\n".join(render_section(sec) for sec in sections)
     original_pdf = f"assets/papers/{paper_id}/original.pdf"
+    page_images_html = render_pdf_page_images_html(paper_id)
 
     return f"""<!DOCTYPE html>
 <html lang="zh-CN">
@@ -705,6 +782,8 @@ def render_paper_html(
     </div>
   </div>
 </div>
+
+{page_images_html}
 
 {section_html}
 
@@ -791,6 +870,29 @@ def render_section(section: dict[str, Any]) -> str:
       <div class="lang-col zh"><span class="lang-label zh">中文翻译</span>
         {translated_paragraphs}
       </div>
+    </div>
+  </div>
+</div>"""
+
+
+def render_pdf_page_images_html(paper_id: str) -> str:
+    pages_dir = REPO / "assets" / "papers" / paper_id / "pages"
+    images = sorted(pages_dir.glob("page-*.webp"))
+    if not images:
+        return ""
+    items = "\n".join(
+        f'''    <figure class="pdf-page-figure">
+      <img src="{esc_attr(f"assets/papers/{paper_id}/pages/{image.name}")}" alt="{esc_attr(f"{paper_id} page {idx}")}" loading="lazy">
+      <figcaption>Page {idx}</figcaption>
+    </figure>'''
+        for idx, image in enumerate(images, start=1)
+    )
+    return f"""<div class="content-card pdf-pages-card">
+  <div class="bilingual-block">
+    <div class="section-title">Original Layout · 原始版面</div>
+    <p class="pdf-pages-note">以下为 PDF 原始页面渲染图，用于保留图、表、公式和复杂版面。</p>
+    <div class="pdf-page-list">
+{items}
     </div>
   </div>
 </div>"""
