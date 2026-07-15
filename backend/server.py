@@ -440,9 +440,11 @@ def translate_paragraphs(paragraphs: list[str], progress_cb: Any | None = None) 
         try:
             data = chat_json([
                 {"role": "system", "content": (
-                    "Translate academic paper paragraphs into Simplified Chinese. "
-                    "Do not copy the English source text. Translate complete English sentences into natural Chinese. "
-                    "Keep terminology precise, keep citations, formulas, numbers, DOI, and proper nouns unchanged where appropriate. "
+                    "Translate academic paper content into Simplified Chinese for a bilingual reading page. "
+                    "Translate titles, abstracts, headings, prose paragraphs, captions, and keywords into natural Chinese. "
+                    "Keep URLs, emails, DOI strings, author affiliations, copyright/license notices, citation boilerplate, "
+                    "bibliography/reference entries, formulas, numbers, and proper nouns unchanged where appropriate. "
+                    "If an item is not meaningful prose to translate, copy it unchanged. "
                     "Return JSON with key translations, an array with exactly the same length and order as input paragraphs."
                 )},
                 {"role": "user", "content": json.dumps({"paragraphs": chunk}, ensure_ascii=False)},
@@ -473,11 +475,14 @@ def translate_one(text: str) -> str:
 
 
 def translate_one_text(text: str) -> str:
+    if not should_translate_to_chinese(text):
+        return text
     try:
         translated = chat_text([
             {"role": "system", "content": (
-                "Translate the academic paragraph to Simplified Chinese. "
-                "Do not return the English source unchanged. Keep citations, formulas, numbers, and proper nouns where appropriate. "
+                "Translate this academic paper text into Simplified Chinese for a bilingual reading page. "
+                "Translate prose, headings, captions, keywords, and titles. "
+                "Keep citations, formulas, numbers, DOI, URLs, emails, and proper nouns unchanged where appropriate. "
                 "Return only the translated paragraph, no JSON."
             )},
             {"role": "user", "content": text},
@@ -489,8 +494,9 @@ def translate_one_text(text: str) -> str:
     try:
         data = chat_json([
             {"role": "system", "content": (
-                "Translate this academic paragraph into Simplified Chinese. "
-                "The output must contain Chinese for every translatable English sentence. "
+                "Translate this academic paper text into Simplified Chinese. "
+                "The output must contain Chinese for prose, headings, captions, keywords, and titles. "
+                "Keep citations, formulas, numbers, DOI, URLs, emails, and proper nouns unchanged where appropriate. "
                 "Return JSON only: {\"translation\":\"...\"}."
             )},
             {"role": "user", "content": text},
@@ -500,8 +506,8 @@ def translate_one_text(text: str) -> str:
             return translated
     except Exception:
         pass
-    if needs_chinese_translation(text):
-        raise RuntimeError("LLM returned untranslated English text; refusing to publish a broken bilingual page.")
+    if should_translate_to_chinese(text):
+        return f"【自动翻译失败，保留原文】{text}"
     return text
 
 
@@ -520,13 +526,67 @@ def ensure_translations_valid(sources: list[str], translations: list[Any]) -> No
 
 
 def translation_passes_quality_gate(source: str, translated: str) -> bool:
-    if not needs_chinese_translation(source):
+    if not should_translate_to_chinese(source):
         return True
     return cjk_count(translated) >= max(4, min(20, ascii_word_count(source) // 8))
 
 
-def needs_chinese_translation(text: str) -> bool:
-    return ascii_word_count(text) >= 8 and cjk_count(text) < 4
+def should_translate_to_chinese(text: str) -> bool:
+    text = normalize_text(text)
+    if not text or cjk_count(text) >= 4:
+        return False
+    if re.match(r"^\d+(\.\d+)*\.?\s+[A-Za-z]", text):
+        return True
+    words = ascii_word_count(text)
+    if words < 4:
+        return False
+    lower = text.lower()
+    if re.search(r"https?://|\b[\w.+-]+@[\w.-]+\.\w+\b", text):
+        return False
+    boilerplate_prefixes = (
+        "design research society",
+        "drs biennial conference series",
+        "follow this and additional works at",
+        "part of the ",
+        "citation citation",
+        "this research paper is brought to you",
+        "this work is licensed under",
+    )
+    if lower.startswith(boilerplate_prefixes):
+        return False
+    if looks_like_reference_entry(text):
+        return False
+    if looks_like_affiliation_or_author_line(text):
+        return False
+    if lower.startswith(("abstract:", "keywords:", "figure ", "table ")):
+        return True
+    if len(text) < 140 and words >= 4:
+        return True
+    return has_sentence_punctuation(text)
+
+
+def looks_like_reference_entry(text: str) -> bool:
+    if re.match(r"^\[\d+\]\s+", text):
+        return True
+    if re.match(r"^\d+\.\s+[A-Z][A-Za-z-]+,\s+[A-Z]", text):
+        return True
+    return False
+
+
+def looks_like_affiliation_or_author_line(text: str) -> bool:
+    lower = text.lower()
+    if len(text) > 180 or has_sentence_punctuation(text):
+        return False
+    affiliation_terms = (
+        "university", "institute", "laboratory", "department", "school of",
+        "college", "monash", "london", "australia", "united kingdom",
+        "china", "usa",
+    )
+    return any(term in lower for term in affiliation_terms)
+
+
+def has_sentence_punctuation(text: str) -> bool:
+    return bool(re.search(r"[.!?。！？][\"')\]]?(?:\s|$)", text))
 
 
 def ascii_word_count(text: str) -> int:
