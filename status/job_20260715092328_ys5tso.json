@@ -1,8 +1,8 @@
 {
   "job_id": "job_20260715092328_ys5tso",
-  "status": "queued",
-  "label": "排队中",
-  "progress": 8,
-  "message": "任务已重新排队，等待 worker 处理。",
-  "updated_at": 1784107500
+  "status": "extracting",
+  "label": "抽取中",
+  "progress": 30,
+  "message": "正在从 PDF 抽取正文、标题和段落。",
+  "updated_at": 1784107512
 }
