@@ -355,13 +355,19 @@ class hard_timeout:
     def __init__(self, seconds: int):
         self.seconds = seconds
         self.previous: Any = None
+        self.enabled = False
 
     def __enter__(self) -> None:
+        if threading.current_thread() is not threading.main_thread():
+            return
+        self.enabled = True
         self.previous = signal.getsignal(signal.SIGALRM)
         signal.signal(signal.SIGALRM, self._raise_timeout)
         signal.alarm(self.seconds)
 
     def __exit__(self, exc_type: Any, exc: Any, tb: Any) -> None:
+        if not self.enabled:
+            return
         signal.alarm(0)
         signal.signal(signal.SIGALRM, self.previous)
 
