@@ -1,8 +1,8 @@
 {
   "job_id": "job_20260715092322_leaic8",
-  "status": "extracting",
-  "label": "抽取中",
-  "progress": 30,
-  "message": "正在从 PDF 抽取正文、标题和段落。",
-  "updated_at": 1784107425
+  "status": "failed",
+  "label": "失败",
+  "progress": 100,
+  "message": "GitHub status update failed: 422 {\"message\":\"Invalid request.\\n\\n\\\"sha\\\" wasn't supplied.\",\"documentation_url\":\"https://docs.github.com/rest/repos/contents#create-or-update-file-contents\",\"status\":\"422\"}",
+  "updated_at": 1784107428
 }
