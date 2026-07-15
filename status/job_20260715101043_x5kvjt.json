@@ -1,8 +1,8 @@
 {
   "job_id": "job_20260715101043_x5kvjt",
-  "status": "translating",
-  "label": "翻译中",
-  "progress": 42,
-  "message": "正在翻译第 1-6 段，共 165 段。",
-  "updated_at": 1784110256
+  "status": "failed",
+  "label": "失败",
+  "progress": 100,
+  "message": "LLM returned untranslated English text; refusing to publish a broken bilingual page.",
+  "updated_at": 1784110260
 }
