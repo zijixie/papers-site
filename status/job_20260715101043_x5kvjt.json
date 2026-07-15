@@ -1,8 +1,8 @@
 {
   "job_id": "job_20260715101043_x5kvjt",
-  "status": "translating",
-  "label": "翻译中",
-  "progress": 77,
-  "message": "正在翻译第 163-165 段，共 165 段。",
-  "updated_at": 1784110698
+  "status": "deploying",
+  "label": "部署中",
+  "progress": 90,
+  "message": "正在生成网页并部署到 GitHub Pages。",
+  "updated_at": 1784110700
 }
