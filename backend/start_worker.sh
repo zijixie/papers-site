@@ -10,8 +10,22 @@ if [ -f ".env" ]; then
   set +a
 fi
 
-if [ -z "${LLM_API_KEY:-}" ] && [ -z "${DASHSCOPE_API_KEY:-}" ]; then
-  echo "Set LLM_API_KEY or DASHSCOPE_API_KEY before starting the worker" >&2
+has_claude_settings_token="$(
+  python3 - <<'PY'
+import json
+from pathlib import Path
+
+settings = Path.home() / ".claude" / "settings.json"
+try:
+    env = json.loads(settings.read_text(encoding="utf-8")).get("env", {})
+except Exception:
+    env = {}
+print("1" if env.get("ANTHROPIC_AUTH_TOKEN") else "0")
+PY
+)"
+
+if [ -z "${LLM_API_KEY:-}" ] && [ -z "${DASHSCOPE_API_KEY:-}" ] && [ "$has_claude_settings_token" != "1" ]; then
+  echo "Set LLM_API_KEY, DASHSCOPE_API_KEY, or ANTHROPIC_AUTH_TOKEN in ~/.claude/settings.json before starting the worker" >&2
   exit 1
 fi
 

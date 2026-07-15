@@ -66,9 +66,9 @@ nav .brand-accent { color: #4f46e5; }
       <label>
         <span>主题分类</span>
         <select id="theme" name="theme">
-          <option value="theme1">设计介入跨学科协作</option>
-          <option value="theme2">设计转译</option>
-          <option value="theme3">新主题</option>
+          <option value="设计介入跨学科协作">设计介入跨学科协作</option>
+          <option value="设计转译">设计转译</option>
+          <option value="新主题">新主题</option>
         </select>
       </label>
 
@@ -96,9 +96,9 @@ nav .brand-accent { color: #4f46e5; }
 (function () {
   const OWNER  = "zijixie";
   const REPO   = "papers-site";
-  const BRANCH = "main";
+  const MAIN_BRANCH = "main";
+  const QUEUE_BRANCH = "upload-queue";
   const API    = `https://api.github.com/repos/${OWNER}/${REPO}`;
-  const PUBLIC = "https://zijixie.github.io/papers-site";
 
   const form    = document.getElementById("upload-form");
   const btn     = document.getElementById("submit-btn");
@@ -127,6 +127,18 @@ nav .brand-accent { color: #4f46e5; }
     msgEl.textContent = msg;
   }
 
+  function setJobStatus(data) {
+    setStatus(
+      data.label || data.status || "处理中…",
+      typeof data.progress === "number" ? data.progress : 0,
+      data.message || ""
+    );
+    if (data.url) {
+      linkEl.href = data.url;
+      linkEl.hidden = false;
+    }
+  }
+
   async function ghRequest(method, path, body) {
     const token = tokenEl.value.trim();
     const res = await fetch(`${API}${path}`, {
@@ -146,52 +158,78 @@ nav .brand-accent { color: #4f46e5; }
     return res.json();
   }
 
-  async function listPaperNames() {
-    try {
-      const items = await ghRequest("GET", `/contents/?ref=${BRANCH}&t=${Date.now()}`);
-      return items.filter(f => /^paper\d+\.html$/.test(f.name)).map(f => f.name);
-    } catch { return []; }
-  }
-
-  async function pushFile(pendingPath, arrayBuffer, commitMsg) {
-    // Convert ArrayBuffer to base64
+  function arrayBufferToBase64(arrayBuffer) {
     const bytes = new Uint8Array(arrayBuffer);
     let binary = "";
-    for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
-    const base64 = btoa(binary);
+    const chunk = 0x8000;
+    for (let i = 0; i < bytes.byteLength; i += chunk) {
+      binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+    }
+    return btoa(binary);
+  }
 
-    // Check if file already exists (get sha for update)
-    let sha;
+  function textToBase64(text) {
+    return btoa(unescape(encodeURIComponent(text)));
+  }
+
+  async function ensureQueueBranch() {
     try {
-      const info = await ghRequest("GET", `/contents/${pendingPath}?ref=${BRANCH}`);
-      sha = info.sha;
+      await ghRequest("GET", `/git/ref/heads/${QUEUE_BRANCH}?t=${Date.now()}`);
+      return;
     } catch (e) {
       if (!String(e.message).includes("404")) throw e;
     }
-    const body = {message: commitMsg, content: base64, branch: BRANCH};
-    if (sha) body.sha = sha;
-    await ghRequest("PUT", `/contents/${pendingPath}`, body);
+
+    const mainRef = await ghRequest("GET", `/git/ref/heads/${MAIN_BRANCH}?t=${Date.now()}`);
+    await ghRequest("POST", "/git/refs", {
+      ref: `refs/heads/${QUEUE_BRANCH}`,
+      sha: mainRef.object.sha,
+    });
   }
 
-  async function pollForNewPaper(beforeNames, maxWaitMs) {
-    const interval = 25000;
-    const deadline = Date.now() + maxWaitMs;
-    while (Date.now() < deadline) {
-      await new Promise(r => setTimeout(r, interval));
-      const elapsed = Math.round((Date.now() - (deadline - maxWaitMs)) / 1000);
-      const mins = Math.floor(elapsed / 60);
-      const secs = elapsed % 60;
-      const timeStr = mins > 0 ? `${mins}分${secs}秒` : `${secs}秒`;
-      setStatus("处理中…", 60 + Math.min(elapsed / (maxWaitMs / 1000) * 30, 28),
-        `已等待 ${timeStr}，后台正在提取文本、核验出版信息并逐段翻译，请稍候…`);
-      const afterNames = await listPaperNames();
-      const newPapers = afterNames.filter(n => !beforeNames.includes(n));
-      if (newPapers.length > 0) {
-        newPapers.sort();
-        return `${PUBLIC}/${newPapers[newPapers.length - 1]}`;
+  async function putQueueFile(path, contentBase64, commitMsg) {
+    await ghRequest("PUT", `/contents/${path}`, {
+      message: commitMsg,
+      content: contentBase64,
+      branch: QUEUE_BRANCH,
+    });
+  }
+
+  async function createQueueJob(file, theme) {
+    const jobId = "job_" +
+      new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 14) +
+      "_" + Math.random().toString(36).slice(2, 8);
+    const dir = `incoming/${jobId}`;
+    const job = {
+      job_id: jobId,
+      theme,
+      filename: file.name,
+      created_at: new Date().toISOString(),
+    };
+
+    await putQueueFile(`${dir}/input.pdf`, arrayBufferToBase64(await file.arrayBuffer()), `Upload PDF for ${jobId}`);
+    await putQueueFile(`${dir}/job.json`, textToBase64(JSON.stringify(job, null, 2) + "\n"), `Create translation job ${jobId}`);
+    return jobId;
+  }
+
+  async function pollJob(jobId) {
+    for (;;) {
+      try {
+        const data = await ghRequest("GET", `/contents/status/${jobId}.json?ref=${QUEUE_BRANCH}&t=${Date.now()}`);
+        const status = JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\s/g, "")))));
+        setJobStatus(status);
+        if (status.status === "complete" || status.status === "failed") return status;
+      } catch (e) {
+        if (!String(e.message).includes("404")) throw e;
+        setJobStatus({
+          status: "queued",
+          label: "排队中",
+          progress: 8,
+          message: "PDF 已提交到 upload-queue，等待本机 worker 拉取处理。",
+        });
       }
+      await new Promise(r => setTimeout(r, 5000));
     }
-    return null;
   }
 
   form.addEventListener("submit", async (e) => {
@@ -208,33 +246,22 @@ nav .brand-accent { color: #4f46e5; }
     linkEl.hidden = true;
 
     try {
-      setStatus("准备中…", 5, "正在读取当前论文列表…");
-      const beforeNames = await listPaperNames();
+      setStatus("准备中…", 5, "正在检查 GitHub 队列分支…");
+      await ensureQueueBranch();
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        setStatus("上传中…", 10 + (i / files.length) * 40,
-          `正在上传 ${file.name}（${i + 1}/${files.length}）`);
-        const buf = await file.arrayBuffer();
-        const ts = Date.now();
-        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-        const pendingName = `${themeSlug}_${ts}_${safeName}`;
-        await pushFile(`pending/${pendingName}`, buf,
-          `Upload PDF for translation: ${file.name}`);
-      }
-
-      setStatus("已提交！", 55,
-        `${files.timing ? "" : ""}${files.length} 个 PDF 已推送到 pending/，后台每 5 秒轮询一次，约 3–8 分钟后完成翻译并部署…`);
-
-      // 每 25 秒轮询，最多等 15 分钟
-      const url = await pollForNewPaper(beforeNames, 15 * 60 * 1000);
-      if (url) {
-        setStatus("完成！", 100, "翻译完成，新论文页面已部署到 GitHub Pages。");
-        linkEl.href = url;
-        linkEl.hidden = false;
-      } else {
-        setStatus("后台仍在运行", 90,
-          "超时未检测到新论文（可能需要更长时间）。请稍后刷新首页查看，或检查后台 watcher 日志。");
+        setStatus("上传中…", 15,
+          `正在提交 ${file.name} 到 upload-queue（${i + 1}/${files.length}）`);
+        const jobId = await createQueueJob(file, themeSlug);
+        setJobStatus({
+          status: "queued",
+          label: "排队中",
+          progress: 8,
+          message: `任务 ${jobId} 已提交，等待本机 worker 处理。`,
+        });
+        const status = await pollJob(jobId);
+        if (status.status === "failed") break;
       }
     } catch (err) {
       setStatus("出错", 0, `错误：${err.message}`);
