@@ -183,7 +183,12 @@ def put_github_file(path: str, text: str, message: str) -> None:
         put_res = requests.put(url, headers=headers, json=body, timeout=30)
         if put_res.status_code in (200, 201):
             return
-        if put_res.status_code != 409:
+        retryable_sha_miss = (
+            put_res.status_code == 422
+            and "sha" in put_res.text.lower()
+            and "supplied" in put_res.text.lower()
+        )
+        if put_res.status_code != 409 and not retryable_sha_miss:
             raise RuntimeError(f"GitHub status update failed: {put_res.status_code} {put_res.text}")
         time.sleep(1)
     raise RuntimeError(f"GitHub status update failed after retry: {path}")
