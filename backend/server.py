@@ -536,7 +536,9 @@ def sanitize_translations(sources: list[str], translations: list[Any]) -> list[s
 def translation_passes_quality_gate(source: str, translated: str) -> bool:
     if not should_translate_to_chinese(source):
         return True
-    return cjk_count(translated) >= max(4, min(20, ascii_word_count(source) // 8))
+    words = ascii_word_count(source)
+    required = 2 if words < 8 else max(4, min(20, words // 8))
+    return cjk_count(translated) >= required
 
 
 def should_translate_to_chinese(text: str) -> bool:
