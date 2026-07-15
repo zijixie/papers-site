@@ -449,9 +449,47 @@ nav .nav-links a.active { background: rgba(255,255,255,0.18); color: #fff; font-
 .lang-col h4 { font-size: 0.9rem; color: var(--navy); margin-bottom: 0.5rem; margin-top: 0.8rem; }
 .lang-col strong { color: var(--navy); }
 
-.pdf-pages-card { overflow: hidden; }
+.pdf-pages-card {
+  overflow: hidden;
+  padding: 0;
+}
+.pdf-pages-card summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem 1.2rem;
+  cursor: pointer;
+  color: var(--navy);
+  font-weight: 700;
+  list-style: none;
+}
+.pdf-pages-card summary::-webkit-details-marker { display: none; }
+.pdf-pages-card summary::after {
+  content: "+";
+  flex: 0 0 auto;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  font-weight: 600;
+}
+.pdf-pages-card[open] summary::after { content: "-"; }
+.pdf-pages-card summary small {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+.pdf-pages-body {
+  padding: 0 1.2rem 1.2rem;
+  border-top: 1px solid var(--border);
+}
 .pdf-pages-note {
-  margin: 0 0 1rem;
+  margin: 1rem 0;
   color: var(--muted);
   font-size: 0.86rem;
   line-height: 1.7;
@@ -766,6 +804,18 @@ footer .footer-accent { color: var(--accent-soft); opacity: 0.8; }
   .paper-nav { flex-direction: column; }
   .paper-nav a.next { text-align: left; }
   .bilingual-block .section-title { font-size: 0.92rem; }
+  .pdf-pages-card summary {
+    align-items: flex-start;
+    flex-direction: column;
+    position: relative;
+    padding-right: 3rem;
+  }
+  .pdf-pages-card summary::after {
+    position: absolute;
+    right: 1.2rem;
+    top: 1rem;
+  }
+  .pdf-pages-card summary small { margin-left: 0; }
   .section-header h2 { font-size: 1rem; }
 }
 

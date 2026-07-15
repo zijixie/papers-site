@@ -887,15 +887,18 @@ def render_pdf_page_images_html(paper_id: str) -> str:
     </figure>'''
         for idx, image in enumerate(images, start=1)
     )
-    return f"""<div class="content-card pdf-pages-card">
-  <div class="bilingual-block">
-    <div class="section-title">Original Layout · 原始版面</div>
-    <p class="pdf-pages-note">以下为 PDF 原始页面渲染图，用于保留图、表、公式和复杂版面。</p>
+    return f"""<details class="content-card pdf-pages-card">
+  <summary>
+    <span>Original Layout · 原始版面</span>
+    <small>{len(images)} pages · 展开查看图、表和公式</small>
+  </summary>
+  <div class="pdf-pages-body">
+    <p class="pdf-pages-note">以下为 PDF 原始页面渲染图，用于核对图、表、公式和复杂版面；正文翻译在下方继续。</p>
     <div class="pdf-page-list">
 {items}
     </div>
   </div>
-</div>"""
+</details>"""
 
 
 def update_index(
