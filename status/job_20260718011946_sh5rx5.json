@@ -1,8 +1,9 @@
 {
   "job_id": "job_20260718011946_sh5rx5",
-  "status": "deploying",
-  "label": "部署中",
-  "progress": 90,
-  "message": "正在生成网页并部署到 GitHub Pages。",
-  "updated_at": 1784338478
+  "status": "complete",
+  "label": "完成",
+  "progress": 100,
+  "message": "新论文页面已生成并部署。",
+  "updated_at": 1784338487,
+  "url": "https://zijixie.github.io/papers-site/paper17.html"
 }
